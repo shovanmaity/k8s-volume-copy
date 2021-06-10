@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rsync
+  labels:
+    role: rsync
+    name: rsync
+spec:
+  containers:
+  - name: rsync-destination
+    image: quay.io/shovanmaity/rsync:latest
+    command:
+    - rsync
+    args:
+    - "-rv"
+    - "rsync://$(RSYNC_USERNAME)@rsyncd:873/data"
+    - "/data"
+    env:
+    - name: RSYNC_PASSWORD
+      value: pass
+    - name: RSYNC_USERNAME
+      value: user
+    volumeMounts:
+    - mountPath: /data
+      name: data
+  volumes:
+  - name: data
+    emptyDir: {}
+  restartPolicy: Never

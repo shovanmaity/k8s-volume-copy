@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rsyncd
+  labels:
+    role: rsyncd
+    name: rsyncd
+spec:
+  containers:
+  - name: rsyncd
+    image: quay.io/shovanmaity/rsyncd:latest
+    env:
+    - name: RSYNC_USERNAME
+      value: user
+    - name: RSYNC_PASSWORD
+      value: pass
+    ports:
+    - containerPort: 873
+    volumeMounts:
+    - name: data
+      mountPath: /data
+    - name: config
+      mountPath: /etc/rsyncd.conf
+      subPath: rsyncd.conf
+  volumes:
+  - name: data
+    emptyDir: {}
+  - name: config
+    configMap:
+      name: rsyncd.conf
+  restartPolicy: Never
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rsyncd
+  labels:
+    role: rsyncd
+    name: rsyncd
+spec:
+  ports:
+  - port: 873
+    protocol: TCP
+  selector:
+    role: rsyncd
+    name: rsyncd
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rsyncd.conf
+data:
+  rsyncd.conf: |
+    # /etc/rsyncd.conf
+
+    # Minimal configuration file for rsync daemon
+    # See rsync(1) and rsyncd.conf(5) man pages for help
+
+    # This line is required by the /etc/init.d/rsyncd script
+    pid file = /var/run/rsyncd.pid
+
+    uid = 0
+    gid = 0
+    use chroot = yes
+    reverse lookup = no
+    [data]
+        hosts deny = *
+        hosts allow = 0.0.0.0/0
+        read only = false
+        path = /data
+        auth users = , user:rw
+        secrets file = /etc/rsyncd.secrets
+        timeout = 600
+        transfer logging = true
