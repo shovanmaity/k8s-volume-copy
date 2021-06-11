@@ -25,6 +25,8 @@ spec:
   volumes:
   - name: data
     emptyDir: {}
+    #persistentVolumeClaim:
+      #claimName: my-pvc
   - name: config
     configMap:
       name: rsyncd.conf

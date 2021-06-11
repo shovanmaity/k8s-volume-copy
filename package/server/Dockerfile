@@ -9,7 +9,7 @@ COPY package/server/rsyncd.conf /etc/rsyncd.conf
 ADD package/server/entrypoint.sh /usr/sbin/entrypoint.sh
 RUN chmod +x /usr/sbin/entrypoint.sh
 RUN mkdir -p /entrypoint.d
-
+VOLUME /data
 ENTRYPOINT [ "entrypoint.sh" ] 
 
 EXPOSE 873

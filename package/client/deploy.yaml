@@ -26,4 +26,6 @@ spec:
   volumes:
   - name: data
     emptyDir: {}
+    #persistentVolumeClaim:
+      #claimName: my-pvc
   restartPolicy: Never

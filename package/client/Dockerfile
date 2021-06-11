@@ -8,5 +8,5 @@ RUN apk add --no-cache openssh-client==8.3_p1-r2
 ADD package/client/entrypoint.sh /usr/sbin/entrypoint.sh
 RUN chmod +x /usr/sbin/entrypoint.sh
 RUN mkdir -p /entrypoint.d
-
+VOLUME /data
 ENTRYPOINT [ "entrypoint.sh" ]
