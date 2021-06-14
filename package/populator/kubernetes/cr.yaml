@@ -1,0 +1,10 @@
+apiVersion: example.io/v1
+kind: RsyncPopulator
+metadata:
+  name: rsync-populator-1
+spec:
+  username: user
+  password: pass
+  service: rsyncd.default
+  path: /data
+

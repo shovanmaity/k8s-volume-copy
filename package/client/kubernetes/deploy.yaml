@@ -13,19 +13,16 @@ spec:
     - rsync
     args:
     - "-rv"
-    - "rsync://$(RSYNC_USERNAME)@rsyncd:873/data"
+    - "rsync://user@rsyncd:873/data"
     - "/data"
     env:
     - name: RSYNC_PASSWORD
       value: pass
-    - name: RSYNC_USERNAME
-      value: user
     volumeMounts:
     - mountPath: /data
       name: data
   volumes:
   - name: data
-    emptyDir: {}
-    #persistentVolumeClaim:
-      #claimName: my-pvc
+    persistentVolumeClaim:
+      claimName: my-pvc
   restartPolicy: Never
