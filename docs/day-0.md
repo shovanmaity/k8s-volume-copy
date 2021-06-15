@@ -5,6 +5,7 @@ NOTE -
 2. Destination storageclass should pointing to a CSI driver.
 3. Both the storageclass should be configured.
 4. Namespace `volume-migration` is reserved for volume populator. Don't create any application or pvc in that namespace.
+5. We can migrate only filesystem volumes.
 
 Here are the steps to migrate a pvc from one storageclass to another storageclass.
 1. Install volume populator
@@ -90,3 +91,10 @@ Here are the steps to migrate a pvc from one storageclass to another storageclas
    /data # cat file
    hello!
    ```
+
+NOTE - If you want to migrate another PVC then here are the steps -
+1. Scale down your application.
+2. Update and apply `package/server/kubernetes/deploy.yaml` file accordingly to create source(rsyncd)
+3. Update and apply `package/populator/kubernetes/cr.yaml` file accordingly to have the info on source.
+4. Like point 6 create a new PVC pointing to the rsyncpopulator CR.
+5. Once the PVC is in bound state, scale up your application with new PVC.
