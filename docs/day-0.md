@@ -10,14 +10,14 @@ NOTE -
 Here are the steps to migrate a pvc from one storageclass to another storageclass.
 1. Install volume populator
    ```bash
-   kubectl apply -f package/populator/kubernetes/crd.yaml
-   kubectl apply -f package/populator/kubernetes/deploy.yaml
+   kubectl apply -f yaml/populator/rsync/crd.yaml
+   kubectl apply -f yaml/populator/rsync/deploy.yaml
    ```
 2. Create a volume and install a demo app to write some data on that volume.
    ```bash
    # Please edit the storageclass accordingly
-   kubectl apply -f package/populator/kubernetes/app/pvc.yaml
-   kubectl apply -f package/populator/kubernetes/app/pod.yaml
+   kubectl apply -f yaml/app/default/pvc.yaml
+   kubectl apply -f yaml/app/default/pod.yaml
    ```
    ```bash
    shovan@probot:~$ kubectl exec -it demo sh
@@ -32,15 +32,15 @@ Here are the steps to migrate a pvc from one storageclass to another storageclas
    ```
 3. After writing some data delete the pod
    ```bash
-   kubectl delete -f package/populator/kubernetes/app/pod.yaml
+   kubectl delete -f yaml/app/default/pod.yaml
    ```
 4. Install rsyncd, it will mount source volume.
    ```bash
-   kubectl apply -f package/server/kubernetes/deploy.yaml
+   kubectl apply -f yaml/server/rsync/deploy.yaml
    ```
 5. Create a rsyncpopulator cr. It has all the details of source rsyncd.
    ```bash
-   kubectl apply -f package/populator/kubernetes/cr.yaml
+   kubectl apply -f yaml/populator/rsync/cr.yaml
    ```
    ```yaml
    apiVersion: example.io/v1
@@ -56,7 +56,7 @@ Here are the steps to migrate a pvc from one storageclass to another storageclas
 6. Create a new pvc pointing to the rsyncpopulator.
    ```bash
    # Please edit the storageclass accordingly
-   kubectl apply -f package/populator/kubernetes/app/pvcd.yaml
+   kubectl apply -f yaml/app/default/pvc-d.yaml
    ```
    ```yaml
    apiVersion: v1
@@ -78,7 +78,7 @@ Here are the steps to migrate a pvc from one storageclass to another storageclas
    ```
 7. Create a new pod to check the older data is present or not.
    ```bash
-   kubectl apply -f package/populator/kubernetes/app/podd.yaml
+   kubectl apply -f yaml/app/default/pod-d.yaml
    ```
    ```bash
    shovan@probot:~$ kubectl exec -it demo sh
@@ -94,7 +94,7 @@ Here are the steps to migrate a pvc from one storageclass to another storageclas
 
 NOTE - If you want to migrate another PVC then here are the steps -
 1. Scale down your application.
-2. Update and apply `package/server/kubernetes/deploy.yaml` file accordingly to create source(rsyncd)
-3. Update and apply `package/populator/kubernetes/cr.yaml` file accordingly to have the info on source.
+2. Update and apply `yaml/server/rsync/deploy.yaml` file accordingly to create source(rsyncd)
+3. Update and apply `yaml/populator/rsync/cr.yaml` file accordingly to have the info on source.
 4. Like point 6 create a new PVC pointing to the rsyncpopulator CR.
 5. Once the PVC is in bound state, scale up your application with new PVC.

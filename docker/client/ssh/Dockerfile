@@ -1,12 +1,11 @@
 FROM alpine:3.12
 RUN apk add --no-cache bash
 RUN apk add --no-cache vim=8.2.0735-r0
+RUN apk add --no-cache openssh-client==8.3_p1-r2
 
 # entrypoint script
-COPY package/populator/docker/entrypoint.sh /usr/sbin/entrypoint.sh
+COPY docker/client/ssh/entrypoint.sh /usr/sbin/entrypoint.sh
 RUN chmod +x /usr/sbin/entrypoint.sh
 RUN mkdir -p /entrypoint.d
-COPY bin/rsyncp /usr/sbin/rsyncp
-
+VOLUME /data
 ENTRYPOINT [ "entrypoint.sh" ]
-CMD [ "rsyncp" ]
