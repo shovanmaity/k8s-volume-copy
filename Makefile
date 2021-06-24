@@ -51,7 +51,7 @@ push-sshd-image: sshd-image
 rsyncp-binary:
 	mkdir -p bin
 	rm -rf bin/rsyncp
-	CGO_ENABLED=0 go build -o bin/rsyncp app/populator/*
+	CGO_ENABLED=0 go build -o bin/rsyncp app/populator/rsync/*
 
 .PHONY: rsyncp-image
 rsyncp-image: rsyncp-binary

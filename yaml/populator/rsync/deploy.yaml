@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: volume-migration
+  name: kvm-a1b2c3d4e5
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: rsync-populator
-  namespace: volume-migration
+  namespace: kvm-a1b2c3d4e5
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
@@ -38,7 +38,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: rsync-populator
-    namespace: volume-migration
+    namespace: kvm-a1b2c3d4e5
 roleRef:
   kind: ClusterRole
   name: rsync-populator
@@ -48,7 +48,7 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: rsync-populator
-  namespace: volume-migration
+  namespace: kvm-a1b2c3d4e5
 spec:
   selector:
     matchLabels:
