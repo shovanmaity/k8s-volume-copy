@@ -2,6 +2,11 @@ QUAY_USERNAME ?= shovanmaity
 LATEST_TAG ?= latest
 IMAGE_TAG ?= 0.0.1
 
+.PHONY: crd-gen
+crd-gen:
+	controller-gen crd:crdVersions=v1 paths=./client/apis/kvm.io/v1
+	controller-gen object paths=./client/apis/kvm.io/v1/types.go
+
 ##
 .PHONY: rsync-image
 rsync-image:

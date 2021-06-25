@@ -3,4 +3,4 @@ kind: VolumeClaimPopulator
 metadata:
   name: claim-populator
 spec:
-  name: my-pvc
+  pvcName: my-pvc

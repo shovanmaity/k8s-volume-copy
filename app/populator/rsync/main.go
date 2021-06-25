@@ -10,6 +10,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/klog/v2"
+
+	internalv1 "github.com/shovanmaity/kvm/client/apis/kvm.io/v1"
 )
 
 const (
@@ -46,7 +48,7 @@ func main() {
 }
 
 func getPopulatorCmds(rawBlock bool, u *unstructured.Unstructured) ([]string, error) {
-	populator := RsyncPopulator{}
+	populator := internalv1.RsyncPopulator{}
 	err := runtime.DefaultUnstructuredConverter.
 		FromUnstructured(u.UnstructuredContent(), &populator)
 	if nil != err {
@@ -59,7 +61,7 @@ func getPopulatorCmds(rawBlock bool, u *unstructured.Unstructured) ([]string, er
 }
 
 func getPopulatorArgs(rawBlock bool, u *unstructured.Unstructured) ([]string, error) {
-	populator := RsyncPopulator{}
+	populator := internalv1.RsyncPopulator{}
 	err := runtime.DefaultUnstructuredConverter.
 		FromUnstructured(u.UnstructuredContent(), &populator)
 	if nil != err {
@@ -67,15 +69,15 @@ func getPopulatorArgs(rawBlock bool, u *unstructured.Unstructured) ([]string, er
 	}
 	args := []string{
 		"-rv",
-		"rsync://" + populator.Spec.Username + "@" + populator.Spec.Service +
-			":873" + populator.Spec.Path,
+		"rsync://" + populator.Spec.Username + "@" +
+			populator.Spec.URL + populator.Spec.Path,
 		mountPath,
 	}
 	return args, nil
 }
 
 func getPopulatorEnvs(u *unstructured.Unstructured) ([]corev1.EnvVar, error) {
-	populator := RsyncPopulator{}
+	populator := internalv1.RsyncPopulator{}
 	err := runtime.DefaultUnstructuredConverter.
 		FromUnstructured(u.UnstructuredContent(), &populator)
 	if nil != err {

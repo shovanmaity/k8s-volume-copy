@@ -28,6 +28,8 @@ import (
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/util/workqueue"
 	"k8s.io/klog/v2"
+
+	internalv1 "github.com/shovanmaity/kvm/client/apis/kvm.io/v1"
 )
 
 const (
@@ -215,13 +217,13 @@ func (c *controller) syncPvc(ctx context.Context, key, namespace, name string) (
 		}
 		return false, err
 	}
-	populator := VolumeClaimPopulator{}
+	populator := internalv1.VolumeClaimPopulator{}
 	if err := runtime.DefaultUnstructuredConverter.
 		FromUnstructured(unstructured.UnstructuredContent(), &populator); err != nil {
 		return false, err
 	}
 	// Get source PVC
-	source, err := c.pvcLister.PersistentVolumeClaims(namespace).Get(populator.Spec.Name)
+	source, err := c.pvcLister.PersistentVolumeClaims(namespace).Get(populator.Spec.PVCName)
 	if err != nil {
 		klog.V(2).Infof("Error getting pvc, error: `%s`.", err)
 		if errors.IsNotFound(err) {
@@ -231,7 +233,7 @@ func (c *controller) syncPvc(ctx context.Context, key, namespace, name string) (
 		return false, err
 	}
 	// If source and pvc name is same then skip
-	if pvc.Name == populator.Spec.Name {
+	if pvc.Name == populator.Spec.PVCName {
 		return true, nil
 	}
 	// If storageclass is not present in pvc and storageclass is not matching then skip it
