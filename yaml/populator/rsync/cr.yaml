@@ -1,7 +1,7 @@
-apiVersion: example.io/v1
+apiVersion: kvm.io/v1
 kind: RsyncPopulator
 metadata:
-  name: rsync-populator-1
+  name: rsync-populator
 spec:
   username: user
   password: pass

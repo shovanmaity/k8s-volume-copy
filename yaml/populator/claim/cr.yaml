@@ -1,0 +1,6 @@
+apiVersion: kvm.io/v1
+kind: VolumeClaimPopulator
+metadata:
+  name: claim-populator
+spec:
+  name: my-pvc

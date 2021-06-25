@@ -6,18 +6,18 @@ metadata:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: rsync-populator
+  name: claim-populator
   namespace: kvm-a1b2c3d4e5
   labels:
-    kvm.io/name: rsync-populator
+    kvm.io/name: claim-populator
     kvm.io/role: volume-populator 
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: rsync-populator
+  name: claim-populator
   labels:
-    kvm.io/name: rsync-populator
+    kvm.io/name: claim-populator
     kvm.io/role: volume-populator 
 rules:
   - apiGroups: [""]
@@ -25,68 +25,61 @@ rules:
     verbs: [get, list, watch, patch]
   - apiGroups: [""]
     resources: [persistentvolumeclaims]
-    verbs: [get, list, watch, patch, create, delete]
-  - apiGroups: [""]
-    resources: [pods]
-    verbs: [get, list, watch, create, delete]
-  - apiGroups: [storage.k8s.io]
-    resources: [storageclasses]
-    verbs: [get, list, watch]
+    verbs: [get, list, watch, update, patch, create, delete]
 
   - apiGroups: [kvm.io]
-    resources: [rsyncpopulators]
+    resources: [volumeclaimpopulators]
     verbs: [get, list, watch]
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: rsync-populator
+  name: claim-populator
   labels:
-    kvm.io/name: rsync-populator
+    kvm.io/name: claim-populator
     kvm.io/role: volume-populator 
 subjects:
   - kind: ServiceAccount
-    name: rsync-populator
+    name: claim-populator
     namespace: kvm-a1b2c3d4e5
 roleRef:
   kind: ClusterRole
-  name: rsync-populator
+  name: claim-populator
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: rsync-populator
+  name: claim-populator
   namespace: kvm-a1b2c3d4e5
   labels:
-    kvm.io/app: rsync-populator
-    kvm.io/name: rsync-populator
+    kvm.io/app: claim-populator
+    kvm.io/name: claim-populator
     kvm.io/role: volume-populator 
 spec:
-  serviceName: rsync-populator
+  serviceName: claim-populator
   replicas: 1
   selector:
     matchLabels:
-      kvm.io/app: rsync-populator
-      kvm.io/name: rsync-populator
+      kvm.io/app: claim-populator
+      kvm.io/name: claim-populator
       kvm.io/role: volume-populator
   template:
     metadata:
       labels:
-        kvm.io/app: rsync-populator
-        kvm.io/name: rsync-populator
+        kvm.io/app: claim-populator
+        kvm.io/name: claim-populator
         kvm.io/role: volume-populator
     spec:
-      serviceAccount: rsync-populator
+      serviceAccount: claim-populator
       containers:
-      - name: rsync-populator
-        image: quay.io/shovanmaity/rsyncp:latest
+      - name: claim-populator
+        image: quay.io/shovanmaity/claimp:latest
         imagePullPolicy: Always
         command:
-        - rsyncp
+        - claimp
         args:
         - --v=2
-        - --image-name=quay.io/shovanmaity/rsync:latest
         env:
         - name: POD_NAMESPACE
           valueFrom:

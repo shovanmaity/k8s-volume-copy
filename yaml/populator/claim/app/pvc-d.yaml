@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-pvc-dash
+spec:
+ #storageClassName: my-sc
+  dataSource:
+    apiGroup: kvm.io
+    kind: RsyncPopulator
+    name: claim-populator
+  accessModes:
+  - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 2Gi

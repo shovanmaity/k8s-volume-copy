@@ -1,14 +1,14 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: rsyncspopulators.kvm.io
+  name: volumeclaimpopulators.kvm.io
 spec:
   group: kvm.io
   names:
-    kind: RsyncPopulator
-    listKind: RsyncPopulatorList
-    plural: rsyncpopulators
-    singular: rsyncpopulator
+    kind: VolumeClaimPopulator
+    listKind: VolumeClaimPopulatorList
+    plural: volumeclaimpopulators
+    singular: volumeclaimpopulator
   scope: Namespaced
   versions:
   - name: v1
@@ -21,19 +21,10 @@ spec:
             type: string
           spec:
             properties:
-              username:
-                type: string
-              password:
-                type: string
-              path:
-                type: string
-              service:
+              name:
                 type: string
             required:
-            - username
-            - password
-            - path
-            - service
+            - name
             type: object
         required:
         - spec

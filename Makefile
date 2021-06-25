@@ -63,8 +63,24 @@ push-rsyncp-image: rsyncp-image
 	docker push quay.io/$(QUAY_USERNAME)/rsyncp:$(LATEST_TAG)
 	docker push quay.io/$(QUAY_USERNAME)/rsyncp:$(IMAGE_TAG)
 ##
+.PHONY: claimp-binary
+claimp-binary:
+	mkdir -p bin
+	rm -rf bin/claimp
+	CGO_ENABLED=0 go build -o bin/claimp app/populator/claim/*
+
+.PHONY: claimp-image
+claimp-image: claimp-binary
+	docker build -t quay.io/$(QUAY_USERNAME)/claimp:$(LATEST_TAG) -f docker/populator/claim/Dockerfile .
+	docker build -t quay.io/$(QUAY_USERNAME)/claimp:$(IMAGE_TAG) -f docker/populator/claim/Dockerfile .
+
+.PHONY: push-claimp-image
+push-claimp-image: claimp-image
+	docker push quay.io/$(QUAY_USERNAME)/claimp:$(LATEST_TAG)
+	docker push quay.io/$(QUAY_USERNAME)/claimp:$(IMAGE_TAG)
+##
 .PHONY: images
-images: rsync-image ssh-image rsyncd-image sshd-image rsyncp-image
+images: rsync-image ssh-image rsyncd-image sshd-image rsyncp-image claimp-image
 
 .PHONY: push-images
-push-images: push-rsync-image push-ssh-image push-rsyncd-image push-sshd-image push-rsyncp-image
+push-images: push-rsync-image push-ssh-image push-rsyncd-image push-sshd-image push-rsyncp-image push-claimp-image

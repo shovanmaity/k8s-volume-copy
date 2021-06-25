@@ -9,15 +9,21 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/klog/v2"
 )
 
 const (
-	prefix     = "example.io"
+	prefix     = "kvm.io"
 	mountPath  = "/data"
 	devicePath = "/dev/block"
 )
 
 func main() {
+	klog.InitFlags(nil)
+	if err := flag.Set("logtostderr", "true"); err != nil {
+		panic(err)
+	}
+
 	var (
 		imageName string
 	)
@@ -26,7 +32,7 @@ func main() {
 
 	namespace := os.Getenv("POD_NAMESPACE")
 	const (
-		groupName  = "example.io"
+		groupName  = "kvm.io"
 		apiVersion = "v1"
 		kind       = "RsyncPopulator"
 		resource   = "rsyncpopulators"
