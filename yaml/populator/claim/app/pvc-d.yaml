@@ -6,7 +6,7 @@ spec:
  #storageClassName: my-sc
   dataSource:
     apiGroup: kvm.io
-    kind: RsyncPopulator
+    kind: VolumeClaimPopulator
     name: claim-populator
   accessModes:
   - ReadWriteOnce

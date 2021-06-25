@@ -1,0 +1,97 @@
+Claim Populator is a `Volume Populator` that helps to rename. It does a patch on `PersistentVolume` of older `Claim` with new `Claim`.
+
+NOTE -
+1. `AnyVolumeDataSource` feature gate should be enabled in the kubernetes cluster.
+2. Storageclass should be present.
+3. Namespace `kvm-a1b2c3d4e5` is reserved for volume populator. Don't create any application or pvc in that namespace.
+4. Before rename volume should not be used by any application.
+
+Here are the steps to rename a pvc.
+1. Install volume populator.
+   ```bash
+   kubectl apply -f yaml/populator/claim/crd.yaml
+   kubectl apply -f yaml/populator/claim/deploy.yaml
+   ```
+2. Create a volume and install a demo app to write some data on that volume.
+   ```bash
+   # Please edit the storageclass accordingly
+   kubectl apply -f yaml/populator/claim/app/pvc.yaml
+   kubectl apply -f yaml/populator/claim/app/pod.yaml
+   ```
+   ```bash
+   shovan@probot:~$ kubectl exec -it demo sh
+   / #
+   / # cd /data/
+   /data # ls -l
+   total 16
+   drwx------    2 root     root         16384 Jun 14 16:17 lost+found
+   /data # echo "hello!" > file
+   /data # cat file
+   hello!
+   ```
+3. After writing some data delete the pod.
+   ```bash
+   kubectl delete -f yaml/populator/claim/app/pod.yaml
+   ```
+4. Create a rsyncpopulator cr. It has old pvc name in the spec.
+   ```bash
+   kubectl apply -f yaml/populator/claim/cr.yaml
+   ```
+   ```yaml
+   apiVersion: kvm.io/v1
+   kind: VolumeClaimPopulator
+   metadata:
+     name: claim-populator
+   spec:
+     name: my-pvc
+   ```
+5. Create a new pvc pointing to the claim-cpopulator.
+   ```bash
+   # Please edit the storageclass accordingly
+   kubectl apply -f yaml/populator/claim/app/pvc-d.yaml
+   ```
+   ```yaml
+   apiVersion: v1
+   kind: PersistentVolumeClaim
+   metadata:
+     name: my-pvc-dash
+   spec:
+    #storageClassName: my-sc
+     dataSource:
+       apiGroup: kvm.io
+       kind: VolumeClaimPopulator
+       name: claim-populator
+     accessModes:
+     - ReadWriteOnce
+     volumeMode: Filesystem
+     resources:
+       requests:
+         storage: 2Gi
+   ```
+6. Create a new pod and check the older data is present or not.
+   ```bash
+   kubectl apply -f yaml/populator/claim/app/pod-d.yaml
+   ```
+   ```bash
+   shovan@probot:~$ kubectl exec -it demo sh
+   / #
+   / # cd /data/
+   /data # ls -lrth
+   total 20K
+   drwx------    2 root     root       16.0K Jun 14 16:30 lost+found
+   -rw-r--r--    1 root     root           7 Jun 14 16:31 file
+   /data # cat file
+   hello!
+   ```
+7. Cleanup the resources.
+   ```bash
+   kubectl delete -f yaml/populator/claim/app/pod-d.yaml
+   kubectl delete -f yaml/populator/claim/app/pvc-d.yaml
+   ```
+   ```bash
+   kubectl delete -f yaml/populator/claim/cr.yaml
+   ```
+   ```bash
+   kubectl delete -f yaml/populator/claim/crd.yaml
+   kubectl delete -f yaml/populator/claim/deploy.yaml
+   ```
