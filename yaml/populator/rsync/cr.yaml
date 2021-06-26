@@ -5,6 +5,6 @@ metadata:
 spec:
   username: user
   password: pass
-  url: rsyncd.default:873
+  url: rsync-daemon.default:873
   path: /data
 

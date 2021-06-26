@@ -7,7 +7,7 @@ NOTE -
 Here are the steps to create a volume using rsync source.
 1. Install volume populator
    ```bash
-   kubectl apply -f yaml/populator/rsync/crd.yaml
+   kubectl apply -f config/crd/demo.io_rsyncpopulators.yaml
    kubectl apply -f yaml/populator/rsync/deploy.yaml
    ```
 2. Create a volume and install a demo app to write some data on that volume.
@@ -47,7 +47,7 @@ Here are the steps to create a volume using rsync source.
    spec:
      username: user
      password: pass
-     url: rsyncd.default:873
+     url: rsync-daemon.default:873
      path: /data
    ```
 6. Create a new pvc pointing to the rsync-populator.
@@ -102,6 +102,6 @@ Here are the steps to create a volume using rsync source.
 
    ```
    ```bash
-   kubectl delete -f yaml/populator/rsync/crd.yaml
+   kubectl delete -f config/crd/demo.io_rsyncpopulators.yaml
    kubectl delete -f yaml/populator/rsync/deploy.yaml
    ```

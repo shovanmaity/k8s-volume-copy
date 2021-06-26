@@ -11,7 +11,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/klog/v2"
 
-	internalv1 "github.com/shovanmaity/kvm/client/apis/demo.io/v1"
+	internalv1 "github.com/shovanmaity/k8s-volume-copy/client/apis/demo.io/v1"
 )
 
 const (

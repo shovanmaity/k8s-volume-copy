@@ -7,7 +7,7 @@ metadata:
     name: rsync-daemon
 spec:
   containers:
-  - name: rsyncd
+  - name: rsync-daemon
     image: quay.io/k8s-volume-copy/rsync-daemon:ci
     env:
     - name: RSYNC_USERNAME

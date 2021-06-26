@@ -83,7 +83,7 @@ spec:
         image: quay.io/k8s-volume-copy/rsync-populator:ci
         imagePullPolicy: Always
         command:
-        - rsyncp
+        - rsync-populator
         args:
         - --v=2
         - --image-name=quay.io/k8s-volume-copy/rsync-client:ci

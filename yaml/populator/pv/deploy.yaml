@@ -77,7 +77,7 @@ spec:
         image: quay.io/k8s-volume-copy/pv-populator:ci
         imagePullPolicy: Always
         command:
-        - claimp
+        - pv-populator
         args:
         - --v=2
         env:

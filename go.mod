@@ -1,4 +1,4 @@
-module github.com/shovanmaity/kvm
+module github.com/shovanmaity/k8s-volume-copy
 
 go 1.14
 
