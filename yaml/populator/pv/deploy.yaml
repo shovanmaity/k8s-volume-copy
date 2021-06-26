@@ -6,18 +6,18 @@ metadata:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: claim-populator
+  name: pv-populator
   namespace: volume-copy
   labels:
-    demo.io/name: claim-populator
+    demo.io/name: pv-populator
     demo.io/role: volume-populator 
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: claim-populator
+  name: pv-populator
   labels:
-    demo.io/name: claim-populator
+    demo.io/name: pv-populator
     demo.io/role: volume-populator 
 rules:
   - apiGroups: [""]
@@ -34,47 +34,47 @@ rules:
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: claim-populator
+  name: pv-populator
   labels:
-    demo.io/name: claim-populator
+    demo.io/name: pv-populator
     demo.io/role: volume-populator 
 subjects:
   - kind: ServiceAccount
-    name: claim-populator
+    name: pv-populator
     namespace: volume-copy
 roleRef:
   kind: ClusterRole
-  name: claim-populator
+  name: pv-populator
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: claim-populator
+  name: pv-populator
   namespace: volume-copy
   labels:
-    demo.io/app: claim-populator
-    demo.io/name: claim-populator
+    demo.io/app: pv-populator
+    demo.io/name: pv-populator
     demo.io/role: volume-populator 
 spec:
-  serviceName: claim-populator
+  serviceName: pv-populator
   replicas: 1
   selector:
     matchLabels:
-      demo.io/app: claim-populator
-      demo.io/name: claim-populator
+      demo.io/app: pv-populator
+      demo.io/name: pv-populator
       demo.io/role: volume-populator
   template:
     metadata:
       labels:
-        demo.io/app: claim-populator
-        demo.io/name: claim-populator
+        demo.io/app: pv-populator
+        demo.io/name: pv-populator
         demo.io/role: volume-populator
     spec:
-      serviceAccount: claim-populator
+      serviceAccount: pv-populator
       containers:
-      - name: claim-populator
-        image: quay.io/shovanmaity/claimp:latest
+      - name: pv-populator
+        image: quay.io/k8s-volume-copy/pv-populator:ci
         imagePullPolicy: Always
         command:
         - claimp

@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: rsync
+  name: rsync-client
   labels:
-    role: rsync
-    name: rsync
+    role: rsync-client
+    name: rsync-client
 spec:
   containers:
-  - name: rsync-destination
-    image: quay.io/shovanmaity/rsync:latest
+  - name: rsync-client
+    image: quay.io/k8s-volume-copy/rsync-client:ci
     command:
     - rsync
     args:

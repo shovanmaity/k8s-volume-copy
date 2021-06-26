@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: rsyncd
+  name: rsync-daemon
   labels:
-    role: rsyncd
-    name: rsyncd
+    role: rsync-daemon
+    name: rsync-daemon
 spec:
   containers:
   - name: rsyncd
-    image: quay.io/shovanmaity/rsyncd:latest
+    image: quay.io/k8s-volume-copy/rsync-daemon:ci
     env:
     - name: RSYNC_USERNAME
       value: user
@@ -28,28 +28,28 @@ spec:
       claimName: my-pvc
   - name: config
     configMap:
-      name: rsyncd.conf
+      name: rsync-daemon.conf
   restartPolicy: Never
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: rsyncd
+  name: rsync-daemon
   labels:
-    role: rsyncd
-    name: rsyncd
+    role: rsync-daemon
+    name: rsync-daemon
 spec:
   ports:
   - port: 873
     protocol: TCP
   selector:
-    role: rsyncd
-    name: rsyncd
+    role: rsync-daemon
+    name: rsync-daemon
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: rsyncd.conf
+  name: rsync-daemon.conf
 data:
   rsyncd.conf: |
     # /etc/rsyncd.conf
