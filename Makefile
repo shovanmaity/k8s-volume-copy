@@ -8,84 +8,62 @@ crd-gen:
 	controller-gen object paths=./client/apis/demo.io/v1/types.go
 
 ##
-.PHONY: rsync-image
-rsync-image:
-	docker build -t quay.io/$(QUAY_USERNAME)/rsync:$(LATEST_TAG) -f docker/client/rsync/Dockerfile .
-	docker build -t quay.io/$(QUAY_USERNAME)/rsync:$(IMAGE_TAG) -f docker/client/rsync/Dockerfile .
+.PHONY: rsync-client-image
+rsync-client-image:
+	docker build -t quay.io/$(QUAY_USERNAME)/rsync-client:$(LATEST_TAG) -f docker/client/rsync/Dockerfile .
+	docker build -t quay.io/$(QUAY_USERNAME)/rsync-client:$(IMAGE_TAG) -f docker/client/rsync/Dockerfile .
 
-.PHONY: push-rsync-image
-push-rsync-image: rsync-image
-	docker push quay.io/$(QUAY_USERNAME)/rsync:$(LATEST_TAG)
-	docker push quay.io/$(QUAY_USERNAME)/rsync:$(IMAGE_TAG)
-
-##
-.PHONY: ssh-image
-ssh-image:
-	docker build -t quay.io/$(QUAY_USERNAME)/ssh:$(LATEST_TAG) -f docker/client/ssh/Dockerfile .
-	docker build -t quay.io/$(QUAY_USERNAME)/ssh:$(IMAGE_TAG) -f docker/client/ssh/Dockerfile .
-
-.PHONY: push-ssh-image
-push-ssh-image: ssh-image
-	docker push quay.io/$(QUAY_USERNAME)/ssh:$(LATEST_TAG)
-	docker push quay.io/$(QUAY_USERNAME)/ssh:$(IMAGE_TAG)
+.PHONY: push-rsync-client-image
+push-rsync-client-image: rsync-client-image
+	docker push quay.io/$(QUAY_USERNAME)/rsync-client:$(LATEST_TAG)
+	docker push quay.io/$(QUAY_USERNAME)/rsync-client:$(IMAGE_TAG)
 
 ##
-.PHONY: rsyncd-image
-rsyncd-image:
-	docker build -t quay.io/$(QUAY_USERNAME)/rsyncd:$(LATEST_TAG) -f docker/server/rsync/Dockerfile .
-	docker build -t quay.io/$(QUAY_USERNAME)/rsyncd:$(IMAGE_TAG) -f docker/server/rsync/Dockerfile .
+.PHONY: rsync-daemon-image
+rsync-daemon-image:
+	docker build -t quay.io/$(QUAY_USERNAME)/rsync-daemon:$(LATEST_TAG) -f docker/server/rsync/Dockerfile .
+	docker build -t quay.io/$(QUAY_USERNAME)/rsync-daemon:$(IMAGE_TAG) -f docker/server/rsync/Dockerfile .
 
-.PHONY: push-rsyncd-image
-push-rsyncd-image: rsyncd-image
-	docker push quay.io/$(QUAY_USERNAME)/rsyncd:$(LATEST_TAG)
-	docker push quay.io/$(QUAY_USERNAME)/rsyncd:$(IMAGE_TAG)
-
-##
-.PHONY: sshd-image
-sshd-image:
-	docker build -t quay.io/$(QUAY_USERNAME)/sshd:$(LATEST_TAG) -f docker/server/ssh/Dockerfile .
-	docker build -t quay.io/$(QUAY_USERNAME)/sshd:$(IMAGE_TAG) -f docker/server/ssh/Dockerfile .
-
-.PHONY: push-sshd-image
-push-sshd-image: sshd-image
-	docker push quay.io/$(QUAY_USERNAME)/sshd:$(LATEST_TAG)
-	docker push quay.io/$(QUAY_USERNAME)/sshd:$(IMAGE_TAG)
+.PHONY: push-rsync-daemon-image
+push-rsync-daemon-image: rsync-daemon-image
+	docker push quay.io/$(QUAY_USERNAME)/rsync-daemon:$(LATEST_TAG)
+	docker push quay.io/$(QUAY_USERNAME)/rsync-daemon:$(IMAGE_TAG)
 
 ##
-.PHONY: rsyncp-binary
-rsyncp-binary:
+.PHONY: rsync-populator-binary
+rsync-populator-binary:
 	mkdir -p bin
-	rm -rf bin/rsyncp
-	CGO_ENABLED=0 go build -o bin/rsyncp app/populator/rsync/*
+	rm -rf bin/rsync-populator
+	CGO_ENABLED=0 go build -o bin/rsync-populator app/populator/rsync/*
 
-.PHONY: rsyncp-image
-rsyncp-image: rsyncp-binary
-	docker build -t quay.io/$(QUAY_USERNAME)/rsyncp:$(LATEST_TAG) -f docker/populator/rsync/Dockerfile .
-	docker build -t quay.io/$(QUAY_USERNAME)/rsyncp:$(IMAGE_TAG) -f docker/populator/rsync/Dockerfile .
+.PHONY: rsync-populator-image
+rsync-populator-image: rsync-populator-binary
+	docker build -t quay.io/$(QUAY_USERNAME)/rsync-populator:$(LATEST_TAG) -f docker/populator/rsync/Dockerfile .
+	docker build -t quay.io/$(QUAY_USERNAME)/rsync-populator:$(IMAGE_TAG) -f docker/populator/rsync/Dockerfile .
 
-.PHONY: push-rsyncp-image
-push-rsyncp-image: rsyncp-image
-	docker push quay.io/$(QUAY_USERNAME)/rsyncp:$(LATEST_TAG)
-	docker push quay.io/$(QUAY_USERNAME)/rsyncp:$(IMAGE_TAG)
+.PHONY: push-rsync-populator-image
+push-rsync-populator-image: rsync-populator-image
+	docker push quay.io/$(QUAY_USERNAME)/rsync-populator:$(LATEST_TAG)
+	docker push quay.io/$(QUAY_USERNAME)/rsync-populator:$(IMAGE_TAG)
 ##
-.PHONY: claimp-binary
-claimp-binary:
+.PHONY: pv-populator-binary
+pv-populator-binary:
 	mkdir -p bin
-	rm -rf bin/claimp
-	CGO_ENABLED=0 go build -o bin/claimp app/populator/claim/*
+	rm -rf bin/pv-populator
+	CGO_ENABLED=0 go build -o bin/pv-populator app/populator/claim/*
 
-.PHONY: claimp-image
-claimp-image: claimp-binary
-	docker build -t quay.io/$(QUAY_USERNAME)/claimp:$(LATEST_TAG) -f docker/populator/claim/Dockerfile .
-	docker build -t quay.io/$(QUAY_USERNAME)/claimp:$(IMAGE_TAG) -f docker/populator/claim/Dockerfile .
+.PHONY: pv-populator-image
+pv-populator-image: pv-populator-binary
+	docker build -t quay.io/$(QUAY_USERNAME)/pv-populator:$(LATEST_TAG) -f docker/populator/claim/Dockerfile .
+	docker build -t quay.io/$(QUAY_USERNAME)/pv-populator:$(IMAGE_TAG) -f docker/populator/claim/Dockerfile .
 
-.PHONY: push-claimp-image
-push-claimp-image: claimp-image
-	docker push quay.io/$(QUAY_USERNAME)/claimp:$(LATEST_TAG)
-	docker push quay.io/$(QUAY_USERNAME)/claimp:$(IMAGE_TAG)
+.PHONY: push-pv-populator-image
+push-pv-populator-image: pv-populator-image
+	docker push quay.io/$(QUAY_USERNAME)/pv-populator:$(LATEST_TAG)
+	docker push quay.io/$(QUAY_USERNAME)/pv-populator:$(IMAGE_TAG)
 ##
 .PHONY: images
-images: rsync-image ssh-image rsyncd-image sshd-image rsyncp-image claimp-image
+images: rsync-client-image rsync-daemon-image rsync-populator-image pv-populator-image
 
 .PHONY: push-images
-push-images: push-rsync-image push-ssh-image push-rsyncd-image push-sshd-image push-rsyncp-image push-claimp-image
+push-images: push-rsync-client-image push-rsync-daemon-image push-rsync-populator-image push-pv-populator-image

@@ -6,7 +6,7 @@ RUN apk add --no-cache vim=8.2.0735-r0
 COPY docker/populator/rsync/entrypoint.sh /usr/sbin/entrypoint.sh
 RUN chmod +x /usr/sbin/entrypoint.sh
 RUN mkdir -p /entrypoint.d
-COPY bin/rsyncp /usr/sbin/rsyncp
+COPY bin/rsync-populator /usr/sbin/rsync-populator
 
 ENTRYPOINT [ "entrypoint.sh" ]
-CMD [ "rsyncp" ]
+CMD [ "rsync-populator" ]

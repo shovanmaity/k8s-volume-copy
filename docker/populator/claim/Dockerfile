@@ -6,7 +6,7 @@ RUN apk add --no-cache vim=8.2.0735-r0
 COPY docker/populator/claim/entrypoint.sh /usr/sbin/entrypoint.sh
 RUN chmod +x /usr/sbin/entrypoint.sh
 RUN mkdir -p /entrypoint.d
-COPY bin/claimp /usr/sbin/claimp
+COPY bin/pv-populator /usr/sbin/pv-populator
 
 ENTRYPOINT [ "entrypoint.sh" ]
-CMD [ "claimp" ]
+CMD [ "pv-populator" ]
