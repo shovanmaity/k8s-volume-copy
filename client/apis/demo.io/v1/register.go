@@ -35,6 +35,12 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&RsyncPopulator{},
 		&RsyncPopulatorList{},
+		&VolumeClaimPopulator{},
+		&VolumeClaimPopulatorList{},
+		&VolumeCopy{},
+		&VolumeCoppyList{},
+		&VolumeRename{},
+		&VolumeRenameList{},
 	)
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

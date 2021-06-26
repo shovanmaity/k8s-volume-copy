@@ -1,6 +1,6 @@
 QUAY_USERNAME ?= shovanmaity
-LATEST_TAG ?= latest
-IMAGE_TAG ?= 0.0.1
+LATEST_TAG ?= ci
+IMAGE_TAG ?= $(shell git rev-parse --short HEAD)
 
 .PHONY: crd-gen
 crd-gen:
