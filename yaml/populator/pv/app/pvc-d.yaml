@@ -6,8 +6,8 @@ spec:
  #storageClassName: my-sc
   dataSource:
     apiGroup: demo.io
-    kind: VolumeClaimPopulator
-    name: claim-populator
+    kind: PersistentVolumePopulator
+    name: pv-populator
   accessModes:
   - ReadWriteOnce
   volumeMode: Filesystem

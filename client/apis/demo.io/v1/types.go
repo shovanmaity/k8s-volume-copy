@@ -41,28 +41,28 @@ type RsyncPopulatorList struct {
 
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-// VolumeClaimPopulator is a volume populator that helps to rename a
+// persistentVolumePopulator is a volume populator that helps to rename a
 // PVC by applying patch on the PV of older PVC with new PVC.
-type VolumeClaimPopulator struct {
+type PersistentVolumePopulator struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 	// Spec contains volume claim information. ie - PVC name
-	Spec VolumeClaimPopulatorSpec `json:"spec"`
+	Spec PersistentVolumePopulatorSpec `json:"spec"`
 }
 
-// VolumeClaimPopulatorSpec contains information on Volume Claim.
-type VolumeClaimPopulatorSpec struct {
+// PersistentVolumePopulatorSpec contains information of Volume Claim.
+type PersistentVolumePopulatorSpec struct {
 	// PVCName is the name of the pvc which we want to rename.
 	PVCName string `json:"pvcName"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-// VolumeClaimPopulatorList is a list of VolumeClaimPopulator objects
-type VolumeClaimPopulatorList struct {
+// PersistentVolumePopulatorList is a list of PersistentVolumePopulator objects
+type PersistentVolumePopulatorList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
-	// List of VolumeClaimPopulators
-	Items []VolumeClaimPopulator `json:"items" protobuf:"bytes,2,rep,name=items"`
+	// List of PersistentVolumePopulators
+	Items []PersistentVolumePopulator `json:"items" protobuf:"bytes,2,rep,name=items"`
 }
 
 // +genclient

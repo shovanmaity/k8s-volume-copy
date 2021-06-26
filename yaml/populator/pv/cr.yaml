@@ -1,6 +1,6 @@
 apiVersion: demo.io/v1
-kind: VolumeClaimPopulator
+kind: PersistentVolumePopulator
 metadata:
-  name: claim-populator
+  name: pv-populator
 spec:
   pvcName: my-pvc

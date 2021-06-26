@@ -23,8 +23,8 @@ func main() {
 	const (
 		groupName  = "demo.io"
 		apiVersion = "v1"
-		kind       = "VolumeClaimPopulator"
-		resource   = "volumeclaimpopulators"
+		kind       = "PersistentVolumePopulator"
+		resource   = "persistentvolumepopulators"
 	)
 	var (
 		gk  = schema.GroupKind{Group: groupName, Kind: kind}

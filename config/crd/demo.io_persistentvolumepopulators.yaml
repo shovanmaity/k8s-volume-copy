@@ -6,21 +6,21 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.5.0
   creationTimestamp: null
-  name: rsyncpopulators.demo.io
+  name: persistentvolumepopulators.demo.io
 spec:
   group: demo.io
   names:
-    kind: RsyncPopulator
-    listKind: RsyncPopulatorList
-    plural: rsyncpopulators
-    singular: rsyncpopulator
+    kind: PersistentVolumePopulator
+    listKind: PersistentVolumePopulatorList
+    plural: persistentvolumepopulators
+    singular: persistentvolumepopulator
   scope: Namespaced
   versions:
   - name: v1
     schema:
       openAPIV3Schema:
-        description: RsyncPopulator is a volume populator that helps to create a volume
-          from any rsync source.
+        description: persistentVolumePopulator is a volume populator that helps to
+          rename a PVC by applying patch on the PV of older PVC with new PVC.
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -35,30 +35,13 @@ spec:
           metadata:
             type: object
           spec:
-            description: Spec contains details of rsync source/ rsync daemon. Rsync
-              client will use these information to get the data for the volume.
+            description: Spec contains volume claim information. ie - PVC name
             properties:
-              password:
-                description: Password is used as credential to access rsync daemon
-                  by the client.
-                type: string
-              path:
-                description: Path represent mount path of the volume which we want
-                  to sync by the clinet.
-                type: string
-              url:
-                description: URL is rsync daemon url it can be dns can be ip:port.
-                  Client will use it to connect and get the data from daemon.
-                type: string
-              username:
-                description: Username is used as credential to access rsync daemon
-                  by the client.
+              pvcName:
+                description: PVCName is the name of the pvc which we want to rename.
                 type: string
             required:
-            - password
-            - path
-            - url
-            - username
+            - pvcName
             type: object
         required:
         - spec

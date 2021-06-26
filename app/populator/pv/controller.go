@@ -217,7 +217,7 @@ func (c *controller) syncPvc(ctx context.Context, key, namespace, name string) (
 		}
 		return false, err
 	}
-	populator := internalv1.VolumeClaimPopulator{}
+	populator := internalv1.PersistentVolumePopulator{}
 	if err := runtime.DefaultUnstructuredConverter.
 		FromUnstructured(unstructured.UnstructuredContent(), &populator); err != nil {
 		return false, err

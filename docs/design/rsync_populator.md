@@ -2,7 +2,7 @@ Rsync Populator is a `Volume Populator` that helps to create volume using rsync 
 
 NOTE -
 1. `AnyVolumeDataSource` feature gate should be enabled in the kubernetes cluster.
-2. Namespace `demo-a1b2c3` is reserved for volume populator. Don't create any application or pvc in that namespace.
+2. Namespace `volume-copy` is reserved for volume populator. Don't create any application or pvc in that namespace.
 
 Here are the steps to create a volume using rsync source.
 1. Install volume populator

@@ -1,9 +1,10 @@
-QUAY_USERNAME ?= shovanmaity
+QUAY_USERNAME ?= k8s-volume-copy
 LATEST_TAG ?= ci
 IMAGE_TAG ?= $(shell git rev-parse --short HEAD)
 
 .PHONY: crd-gen
 crd-gen:
+	rm -rf config/crd
 	controller-gen crd:crdVersions=v1 paths=./client/apis/demo.io/v1
 	controller-gen object paths=./client/apis/demo.io/v1/types.go
 
@@ -50,12 +51,12 @@ push-rsync-populator-image: rsync-populator-image
 pv-populator-binary:
 	mkdir -p bin
 	rm -rf bin/pv-populator
-	CGO_ENABLED=0 go build -o bin/pv-populator app/populator/claim/*
+	CGO_ENABLED=0 go build -o bin/pv-populator app/populator/pv/*
 
 .PHONY: pv-populator-image
 pv-populator-image: pv-populator-binary
-	docker build -t quay.io/$(QUAY_USERNAME)/pv-populator:$(LATEST_TAG) -f docker/populator/claim/Dockerfile .
-	docker build -t quay.io/$(QUAY_USERNAME)/pv-populator:$(IMAGE_TAG) -f docker/populator/claim/Dockerfile .
+	docker build -t quay.io/$(QUAY_USERNAME)/pv-populator:$(LATEST_TAG) -f docker/populator/pv/Dockerfile .
+	docker build -t quay.io/$(QUAY_USERNAME)/pv-populator:$(IMAGE_TAG) -f docker/populator/pv/Dockerfile .
 
 .PHONY: push-pv-populator-image
 push-pv-populator-image: pv-populator-image
