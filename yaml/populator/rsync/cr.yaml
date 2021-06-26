@@ -1,4 +1,4 @@
-apiVersion: kvm.io/v1
+apiVersion: demo.io/v1
 kind: RsyncPopulator
 metadata:
   name: rsync-populator

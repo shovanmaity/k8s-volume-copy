@@ -1,4 +1,4 @@
 // +k8s:deepcopy-gen=package
-// +groupName=kvm.io
+// +groupName=demo.io
 
 package v1

@@ -2,7 +2,7 @@ Rsync Populator is a `Volume Populator` that helps to create volume using rsync 
 
 NOTE -
 1. `AnyVolumeDataSource` feature gate should be enabled in the kubernetes cluster.
-2. Namespace `kvm-a1b2c3d4e5` is reserved for volume populator. Don't create any application or pvc in that namespace.
+2. Namespace `demo-a1b2c3` is reserved for volume populator. Don't create any application or pvc in that namespace.
 
 Here are the steps to create a volume using rsync source.
 1. Install volume populator
@@ -40,14 +40,14 @@ Here are the steps to create a volume using rsync source.
    kubectl apply -f yaml/populator/rsync/cr.yaml
    ```
    ```yaml
-   apiVersion: kvm.io/v1
+   apiVersion: demo.io/v1
    kind: RsyncPopulator
    metadata:
      name: rsync-populator
    spec:
      username: user
      password: pass
-     service: rsyncd.default
+     url: rsyncd.default:873
      path: /data
    ```
 6. Create a new pvc pointing to the rsync-populator.
@@ -63,7 +63,7 @@ Here are the steps to create a volume using rsync source.
    spec:
     #storageClassName: my-sc
      dataSource:
-       apiGroup: kvm.io
+       apiGroup: demo.io
        kind: RsyncPopulator
        name: rsync-populator
      accessModes:

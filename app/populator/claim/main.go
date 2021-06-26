@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	prefix = "kvm.io"
+	prefix = "demo.io"
 )
 
 func main() {
@@ -21,7 +21,7 @@ func main() {
 
 	namespace := os.Getenv("POD_NAMESPACE")
 	const (
-		groupName  = "kvm.io"
+		groupName  = "demo.io"
 		apiVersion = "v1"
 		kind       = "VolumeClaimPopulator"
 		resource   = "volumeclaimpopulators"

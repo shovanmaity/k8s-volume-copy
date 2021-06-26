@@ -3,7 +3,7 @@ Claim Populator is a `Volume Populator` that helps to rename. It does a patch on
 NOTE -
 1. `AnyVolumeDataSource` feature gate should be enabled in the kubernetes cluster.
 2. Storageclass should be present.
-3. Namespace `kvm-a1b2c3d4e5` is reserved for volume populator. Don't create any application or pvc in that namespace.
+3. Namespace `demo-a1b2c3` is reserved for volume populator. Don't create any application or pvc in that namespace.
 4. Before rename volume should not be used by any application.
 
 Here are the steps to rename a pvc.
@@ -38,12 +38,12 @@ Here are the steps to rename a pvc.
    kubectl apply -f yaml/populator/claim/cr.yaml
    ```
    ```yaml
-   apiVersion: kvm.io/v1
+   apiVersion: demo.io/v1
    kind: VolumeClaimPopulator
    metadata:
      name: claim-populator
    spec:
-     name: my-pvc
+     pvcName: my-pvc
    ```
 5. Create a new pvc pointing to the claim-cpopulator.
    ```bash
@@ -58,7 +58,7 @@ Here are the steps to rename a pvc.
    spec:
     #storageClassName: my-sc
      dataSource:
-       apiGroup: kvm.io
+       apiGroup: demo.io
        kind: VolumeClaimPopulator
        name: claim-populator
      accessModes:

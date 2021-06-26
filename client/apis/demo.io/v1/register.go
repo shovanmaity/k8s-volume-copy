@@ -7,7 +7,7 @@ import (
 )
 
 // GroupName is the group name use in this package.
-const GroupName = "kvm.io"
+const GroupName = "demo.io"
 
 var (
 	// SchemeBuilder is the new scheme builder

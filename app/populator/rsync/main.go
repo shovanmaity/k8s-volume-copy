@@ -11,11 +11,11 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/klog/v2"
 
-	internalv1 "github.com/shovanmaity/kvm/client/apis/kvm.io/v1"
+	internalv1 "github.com/shovanmaity/kvm/client/apis/demo.io/v1"
 )
 
 const (
-	prefix     = "kvm.io"
+	prefix     = "demo.io"
 	mountPath  = "/data"
 	devicePath = "/dev/block"
 )
@@ -34,7 +34,7 @@ func main() {
 
 	namespace := os.Getenv("POD_NAMESPACE")
 	const (
-		groupName  = "kvm.io"
+		groupName  = "demo.io"
 		apiVersion = "v1"
 		kind       = "RsyncPopulator"
 		resource   = "rsyncpopulators"

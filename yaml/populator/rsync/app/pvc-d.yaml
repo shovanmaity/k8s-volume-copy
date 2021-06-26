@@ -5,7 +5,7 @@ metadata:
 spec:
  #storageClassName: my-sc
   dataSource:
-    apiGroup: kvm.io
+    apiGroup: demo.io
     kind: RsyncPopulator
     name: rsync-populator
   accessModes:
