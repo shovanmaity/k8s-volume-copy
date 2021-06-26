@@ -9,3 +9,4 @@ for f in /entrypoint.d/*; do
   esac
 done
 exec "$@"
+``

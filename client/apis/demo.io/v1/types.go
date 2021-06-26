@@ -90,7 +90,8 @@ type VolumeCopySpec struct {
 
 // VolumeCopyStatus contains status of volume copy
 type VolumeCopyStatus struct {
-	State string `json:"state"`
+	State   string `json:"state"`
+	Message string `json:"message"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -123,7 +124,8 @@ type VolumeRenameSpec struct {
 
 // VolumeRenameStatus contains status of the rename process.
 type VolumeRenameStatus struct {
-	State string `json:"state"`
+	State   string `json:"state"`
+	Message string `json:"message"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

@@ -49,9 +49,12 @@ spec:
           status:
             description: VolumeRenameStatus contains status of the rename process.
             properties:
+              message:
+                type: string
               state:
                 type: string
             required:
+            - message
             - state
             type: object
         required:

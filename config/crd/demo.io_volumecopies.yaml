@@ -55,9 +55,12 @@ spec:
           status:
             description: VolumeCopyStatus contains status of volume copy
             properties:
+              message:
+                type: string
               state:
                 type: string
             required:
+            - message
             - state
             type: object
         required:

@@ -6,7 +6,7 @@ IMAGE_TAG ?= $(shell git rev-parse --short HEAD)
 crd-gen:
 	rm -rf config/crd
 	controller-gen crd:crdVersions=v1 paths=./client/apis/demo.io/v1
-	controller-gen object paths=./client/apis/demo.io/v1/types.go
+	controller-gen object paths=./client/apis/demo.io/v1
 
 ##
 .PHONY: rsync-client-image
@@ -46,6 +46,7 @@ rsync-populator-image: rsync-populator-binary
 push-rsync-populator-image: rsync-populator-image
 	docker push quay.io/$(QUAY_USERNAME)/rsync-populator:$(LATEST_TAG)
 	docker push quay.io/$(QUAY_USERNAME)/rsync-populator:$(IMAGE_TAG)
+
 ##
 .PHONY: pv-populator-binary
 pv-populator-binary:
@@ -62,9 +63,61 @@ pv-populator-image: pv-populator-binary
 push-pv-populator-image: pv-populator-image
 	docker push quay.io/$(QUAY_USERNAME)/pv-populator:$(LATEST_TAG)
 	docker push quay.io/$(QUAY_USERNAME)/pv-populator:$(IMAGE_TAG)
+
+##
+.PHONY: volume-copy-binary
+volume-copy-binary:
+	mkdir -p bin
+	rm -rf bin/volume-copy
+	CGO_ENABLED=0 go build -o bin/volume-copy app/volume-copy/*
+
+.PHONY: volume-copy-image
+volume-copy-image: volume-copy-binary
+	docker build -t quay.io/$(QUAY_USERNAME)/volume-copy:$(LATEST_TAG) -f docker/volume-copy/Dockerfile .
+	docker build -t quay.io/$(QUAY_USERNAME)/volume-copy:$(IMAGE_TAG) -f docker/volume-copy/Dockerfile .
+
+.PHONY: push-volume-copy-image
+push-volume-copy-image: volume-copy-image
+	docker push quay.io/$(QUAY_USERNAME)/volume-copy:$(LATEST_TAG)
+	docker push quay.io/$(QUAY_USERNAME)/volume-copy:$(IMAGE_TAG)
+
+##
+.PHONY: volume-move-binary
+volume-move-binary:
+	mkdir -p bin
+	rm -rf bin/volume-move
+	CGO_ENABLED=0 go build -o bin/volume-move app/volume-move/*
+
+.PHONY: volume-move-image
+volume-move-image: volume-move-binary
+	docker build -t quay.io/$(QUAY_USERNAME)/volume-move:$(LATEST_TAG) -f docker/volume-move/Dockerfile .
+	docker build -t quay.io/$(QUAY_USERNAME)/volume-move:$(IMAGE_TAG) -f docker/volume-move/Dockerfile .
+
+.PHONY: push-volume-move-image
+push-volume-move-image: volume-move-image
+	docker push quay.io/$(QUAY_USERNAME)/volume-move:$(LATEST_TAG)
+	docker push quay.io/$(QUAY_USERNAME)/volume-move:$(IMAGE_TAG)
+
+##
+.PHONY: volume-rename-binary
+volume-rename-binary:
+	mkdir -p bin
+	rm -rf bin/volume-rename
+	CGO_ENABLED=0 go build -o bin/volume-rename app/volume-rename/*
+
+.PHONY: volume-rename-image
+volume-rename-image: volume-rename-binary
+	docker build -t quay.io/$(QUAY_USERNAME)/volume-rename:$(LATEST_TAG) -f docker/volume-rename/Dockerfile .
+	docker build -t quay.io/$(QUAY_USERNAME)/volume-rename:$(IMAGE_TAG) -f docker/volume-rename/Dockerfile .
+
+.PHONY: push-volume-rename-image
+push-volume-rename-image: volume-rename-image
+	docker push quay.io/$(QUAY_USERNAME)/volume-rename:$(LATEST_TAG)
+	docker push quay.io/$(QUAY_USERNAME)/volume-rename:$(IMAGE_TAG)
+
 ##
 .PHONY: images
-images: rsync-client-image rsync-daemon-image rsync-populator-image pv-populator-image
+images: rsync-client-image rsync-daemon-image rsync-populator-image pv-populator-image volume-copy-image volume-move-image volume-rename-image
 
 .PHONY: push-images
-push-images: push-rsync-client-image push-rsync-daemon-image push-rsync-populator-image push-pv-populator-image
+push-images: push-rsync-client-image push-rsync-daemon-image push-rsync-populator-image push-pv-populator-image push-volume-copy-image push-volume-move-image push-volume-rename-image
