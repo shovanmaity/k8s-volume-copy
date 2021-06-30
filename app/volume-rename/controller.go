@@ -233,6 +233,11 @@ func (c *controller) syncPopulator(ctx context.Context, key, namespace, name str
 		return fmt.Errorf("error converting volume rename `%s` in `%s` namespace error: %s",
 			unstruct.GetName(), unstruct.GetNamespace(), err)
 	}
+	if volumeRename.Spec.PVCName == volumeRename.Spec.NewName {
+		klog.Info("skip reconcile volume rename `%s` in `%s` namespace as new and pvc name is same",
+			volumeRename.GetName(), volumeRename.GetNamespace())
+		return nil
+	}
 	if volumeRename.Status.State == internalv1.VolumeRenameStatusCompleted ||
 		volumeRename.Status.State == internalv1.VolumeRenameStatusFailed {
 		klog.V(2).Infof("skip reconcile volume rename `%s` in `%s` namespace as it is in stable state.",

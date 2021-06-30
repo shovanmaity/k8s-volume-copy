@@ -1,0 +1,7 @@
+apiVersion: demo.io/v1
+kind: VolumeRename
+metadata:
+  name: volume-rename
+spec:
+  pvcName: my-pvc
+  newName: my-pvc-dash
