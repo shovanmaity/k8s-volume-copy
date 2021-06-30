@@ -5,6 +5,12 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+const (
+	VolumeRenameStatusInProgress = "InProgress"
+	VolumeRenameStatusCompleted  = "Completed"
+	VolumeRenameStatusFailed     = "Failed"
+)
+
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // RsyncPopulator is a volume populator that helps
@@ -74,14 +80,17 @@ type VolumeCopy struct {
 	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
 	// Spec contains details of rsync source/ rsync daemon. Rsync client will
 	// use these information to get the data for the volume.
-	Spec   VolumeCopySpec   `json:"spec"`
+	Spec VolumeCopySpec `json:"spec"`
+	// +optional
 	Status VolumeCopyStatus `json:"status"`
 }
 
 // VolumeCopySpec contains information of source and new pvc.
 type VolumeCopySpec struct {
-	// PVCName is the PVC that we want to copy
+	// PVCName is name of the PVC that we want to copy
 	PVCName string `json:"pvcName"`
+	// PVCNamespace is namespace of the PVC that we want to copy
+	PVCNamespace string `json:"pvcNamespace"`
 	// SCName is the storageclass of new PVC
 	SCName string `json:"scName"`
 	// NewName is new PVC name
@@ -110,7 +119,8 @@ type VolumeRename struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
 	// Spec contains details of renaming a PVC .
-	Spec   VolumeRenameSpec   `json:"spec"`
+	Spec VolumeRenameSpec `json:"spec"`
+	// +optional
 	Status VolumeRenameStatus `json:"status"`
 }
 

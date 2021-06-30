@@ -190,7 +190,7 @@ func (c *controller) syncPvc(ctx context.Context, key, namespace, name string) (
 		klog.V(2).Infof("Error getting pvc, error: `%s`.", err)
 		if errors.IsNotFound(err) {
 			runtimeu.HandleError(fmt.Errorf("pvc '%s' in work queue no longer exists", key))
-			return done, nil
+			return true, nil
 		}
 		return false, err
 	}

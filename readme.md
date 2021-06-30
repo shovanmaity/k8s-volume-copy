@@ -1,3 +1,1 @@
-# kubernetes-volume-migration
-
-migrate a volume from one storageclass to another storageclass using rsync
+# k8s-volume-copy
