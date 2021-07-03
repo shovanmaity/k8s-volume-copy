@@ -38,24 +38,25 @@ spec:
             description: Spec contains details of rsync source/ rsync daemon. Rsync
               client will use these information to get the data for the volume.
             properties:
-              newName:
-                description: NewName is new PVC name
+              destinationPVC:
+                description: DestinationPVC is new PVC name. it will be created in
+                  VolumeCopy namespace
                 type: string
-              pvcName:
-                description: PVCName is name of the PVC that we want to copy
+              destinationSC:
+                description: DestinationSC is the storageclass of new PVC
                 type: string
-              pvcNamespace:
-                description: PVCNamespace is namespace of the PVC that we want to
-                  copy
+              sourceNamespace:
+                description: SourcePVCNamespace is namespace of the PVC that we want
+                  to copy
                 type: string
-              scName:
-                description: SCName is the storageclass of new PVC
+              sourcePVC:
+                description: SourcePVC is name of the PVC that we want to copy
                 type: string
             required:
-            - newName
-            - pvcName
-            - pvcNamespace
-            - scName
+            - destinationPVC
+            - destinationSC
+            - sourceNamespace
+            - sourcePVC
             type: object
           status:
             description: VolumeCopyStatus contains status of volume copy

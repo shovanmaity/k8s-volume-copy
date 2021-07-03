@@ -29,5 +29,6 @@ const (
 )
 
 const (
-	componentName = "pv-populator"
+	componentName = "volume-rename"
+	populatorName = "pv-populator"
 )

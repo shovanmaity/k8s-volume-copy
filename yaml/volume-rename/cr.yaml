@@ -3,5 +3,5 @@ kind: VolumeRename
 metadata:
   name: volume-rename
 spec:
-  pvcName: my-pvc
-  newName: my-pvc-dash
+  oldPVC: my-pvc
+  newPVC: my-pvc-dash

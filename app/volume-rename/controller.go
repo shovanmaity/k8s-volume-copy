@@ -37,7 +37,7 @@ type controller struct {
 }
 
 func runController(cfg *rest.Config) {
-	klog.Infof("Starting populator controller for %s", vrGVR)
+	klog.Infof("Starting populator controller for %s", vrGK)
 	stopCh := make(chan struct{})
 	sigCh := make(chan os.Signal, 2)
 	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
@@ -82,14 +82,6 @@ func runController(cfg *rest.Config) {
 	}
 }
 
-func (c *controller) handleVolumeRename(obj interface{}) {
-	key, err := cache.MetaNamespaceKeyFunc(obj)
-	if err != nil {
-		utilruntime.HandleError(err)
-	}
-	c.workqueue.Add(key)
-}
-
 func (c *controller) run(stopCh <-chan struct{}) error {
 	defer utilruntime.HandleCrash()
 	defer c.workqueue.ShutDown()
@@ -101,6 +93,14 @@ func (c *controller) run(stopCh <-chan struct{}) error {
 	go wait.Until(c.runWorker, time.Second, stopCh)
 	<-stopCh
 	return nil
+}
+
+func (c *controller) handleVolumeRename(obj interface{}) {
+	key, err := cache.MetaNamespaceKeyFunc(obj)
+	if err != nil {
+		utilruntime.HandleError(err)
+	}
+	c.workqueue.Add(key)
 }
 
 func (c *controller) runWorker() {
@@ -137,87 +137,6 @@ func (c *controller) runWorker() {
 	}
 }
 
-/*
-if found and not created by the populator then return error
-if want and found return nil
-if !want and !found return nil
-if want and !found -> create return error/nil
-if !want and found -> delete return error/nil
-*/
-func (c *controller) ensurePVC(want bool, namespace string, pvc *corev1.PersistentVolumeClaim) error {
-	found := true
-	obj, err := c.kubeClient.CoreV1().PersistentVolumeClaims(namespace).
-		Get(context.TODO(), pvc.Name, metav1.GetOptions{})
-	if err != nil {
-		if errors.IsNotFound(err) {
-			found = false
-		} else {
-			return err
-		}
-	}
-	if found && obj.GetLabels()[createdByLabel] != componentName {
-		return fmt.Errorf("resource found but not created by this operator")
-	}
-	if want && found {
-		return nil
-	}
-	if !want && !found {
-		return nil
-	}
-
-	if want && !found {
-		_, err := c.kubeClient.CoreV1().PersistentVolumeClaims(namespace).
-			Create(context.TODO(), pvc, metav1.CreateOptions{})
-		return err
-	}
-	if want && !found {
-		err := c.kubeClient.CoreV1().PersistentVolumeClaims(namespace).
-			Delete(context.TODO(), pvc.Name, metav1.DeleteOptions{})
-		return err
-	}
-	return nil
-}
-
-/*
-if found and not created by the populator then return error
-if want and found return nil
-if !want and !found return nil
-if want and !found -> create return error/nil
-if !want and found -> delete return error/nil
-*/
-func (c *controller) ensurePopulator(want bool, namespace string, populator *unstructured.Unstructured) error {
-	found := true
-	obj, err := c.dynamicClient.Resource(pvpGVR).Namespace(namespace).
-		Get(context.TODO(), populator.GetName(), metav1.GetOptions{})
-	if err != nil {
-		if errors.IsNotFound(err) {
-			found = false
-		} else {
-			return err
-		}
-	}
-	if found && obj.GetLabels()[createdByLabel] != componentName {
-		return fmt.Errorf("resource found but not created by this operator")
-	}
-	if want && found {
-		return nil
-	}
-	if !want && !found {
-		return nil
-	}
-	if want && !found {
-		_, err := c.dynamicClient.Resource(pvpGVR).Namespace(namespace).
-			Create(context.TODO(), populator, metav1.CreateOptions{})
-		return err
-	}
-	if !want && found {
-		err := c.dynamicClient.Resource(pvpGVR).Namespace(namespace).
-			Delete(context.TODO(), populator.GetName(), metav1.DeleteOptions{})
-		return err
-	}
-	return nil
-}
-
 func (c *controller) syncPopulator(ctx context.Context, key, namespace, name string) error {
 	unstruct, err := c.vrLister.Namespace(namespace).Get(name)
 	if err != nil {
@@ -233,32 +152,22 @@ func (c *controller) syncPopulator(ctx context.Context, key, namespace, name str
 		return fmt.Errorf("error converting volume rename `%s` in `%s` namespace error: %s",
 			unstruct.GetName(), unstruct.GetNamespace(), err)
 	}
-	if volumeRename.Spec.PVCName == volumeRename.Spec.NewName {
+	if volumeRename.Spec.OldPVC == volumeRename.Spec.NewPVC {
 		klog.Info("skip reconcile volume rename `%s` in `%s` namespace as new and pvc name is same",
 			volumeRename.GetName(), volumeRename.GetNamespace())
 		return nil
 	}
-	if volumeRename.Status.State == internalv1.VolumeRenameStatusCompleted ||
-		volumeRename.Status.State == internalv1.VolumeRenameStatusFailed {
+	if volumeRename.Status.State == internalv1.StatusCompleted ||
+		volumeRename.Status.State == internalv1.StatusFailed {
 		klog.V(2).Infof("skip reconcile volume rename `%s` in `%s` namespace as it is in stable state.",
 			volumeRename.GetName(), volumeRename.GetNamespace())
 		return nil
 	}
 	if volumeRename.Status.State == "" {
 		clone := volumeRename.DeepCopy()
-		clone.Status.State = internalv1.VolumeRenameStatusInProgress
-		volumeRenameMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(&clone)
-		if err != nil {
-			return fmt.Errorf("error converting volume rename `%s` in `%s` namespace error: %s",
-				volumeRename.GetName(), volumeRename.GetNamespace(), err)
-		}
-		volumeRenameUnstruct := unstructured.Unstructured{
-			Object: volumeRenameMap,
-		}
-		if _, err := c.dynamicClient.Resource(vrGVR).Namespace(namespace).
-			Update(context.TODO(), &volumeRenameUnstruct, metav1.UpdateOptions{}); err != nil {
-			return fmt.Errorf("error updating volume rename %s in %s namespace error: %s",
-				volumeRename.GetName(), volumeRename.GetNamespace(), err)
+		clone.Status.State = internalv1.StatusInProgress
+		if err := c.updateVolumeCopy(clone); err != nil {
+			return err
 		}
 		return nil
 	}
@@ -267,15 +176,7 @@ func (c *controller) syncPopulator(ctx context.Context, key, namespace, name str
 		return fmt.Errorf("error creating template config error: %s", err)
 	}
 	populatorTemplate := tc.getPersistentVolumePopulatorTemplate()
-	populatorTemplateMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(&populatorTemplate)
-	if err != nil {
-		return fmt.Errorf("error converting populator %s in %s namespace error: %s",
-			populatorTemplate.GetName(), namespace, err)
-	}
-	populatorTemplateUnstruct := unstructured.Unstructured{
-		Object: populatorTemplateMap,
-	}
-	if err := c.ensurePopulator(true, namespace, &populatorTemplateUnstruct); err != nil {
+	if err := c.ensurePopulator(true, namespace, &populatorTemplate); err != nil {
 		return fmt.Errorf("error ensuring(true) populator %s in %s namespace error: %s",
 			populatorTemplate.GetName(), namespace, err)
 	}
@@ -283,34 +184,29 @@ func (c *controller) syncPopulator(ctx context.Context, key, namespace, name str
 		Get(context.TODO(), tc.pvcName, metav1.GetOptions{})
 	if err != nil {
 		if errors.IsNotFound(err) {
-			if err := c.ensurePopulator(false, namespace, &populatorTemplateUnstruct); err != nil {
+			if err := c.ensurePopulator(false, namespace, &populatorTemplate); err != nil {
 				return fmt.Errorf("error ensuring(false) populator %s in %s namespace error: %s",
 					populatorTemplate.GetName(), namespace, err)
 			}
 			found := true
-			if _, err := c.kubeClient.CoreV1().PersistentVolumeClaims(namespace).
-				Get(context.TODO(), tc.newName, metav1.GetOptions{}); err != nil && errors.IsNotFound(err) {
+			newPVC, err := c.kubeClient.CoreV1().PersistentVolumeClaims(namespace).
+				Get(context.TODO(), tc.newName, metav1.GetOptions{})
+			if err != nil && errors.IsNotFound(err) {
+				found = false
+			}
+			if newPVC.GetLabels() == nil || newPVC.GetLabels()[createdByLabel] != componentName {
 				found = false
 			}
 			// Update status
 			clone := volumeRename.DeepCopy()
 			if found {
-				clone.Status.State = internalv1.VolumeRenameStatusCompleted
+				clone.Status.State = internalv1.StatusCompleted
 			} else {
-				clone.Status.State = internalv1.VolumeRenameStatusFailed
+				clone.Status.State = internalv1.StatusFailed
+				clone.Status.Message = "New PVC is not created by volume rename controller."
 			}
-			volumeRenameMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(clone)
-			if err != nil {
-				return fmt.Errorf("error converting volume rename `%s` in `%s` namespace error: %s",
-					volumeRename.GetName(), volumeRename.GetNamespace(), err)
-			}
-			volumeRenameUnstruct := unstructured.Unstructured{
-				Object: volumeRenameMap,
-			}
-			if _, err := c.dynamicClient.Resource(vrGVR).Namespace(namespace).
-				Update(context.TODO(), &volumeRenameUnstruct, metav1.UpdateOptions{}); err != nil {
-				return fmt.Errorf("error updating volume rename %s in %s namespace error: %s",
-					volumeRename.GetName(), volumeRename.GetNamespace(), err)
+			if err := c.updateVolumeCopy(clone); err != nil {
+				return err
 			}
 			return nil
 		}
@@ -321,4 +217,109 @@ func (c *controller) syncPopulator(ctx context.Context, key, namespace, name str
 		return fmt.Errorf("error ensuring pvc %s in %s namespace error: %s", tc.pvcName, namespace, err)
 	}
 	return nil
+}
+
+/*
+if found and not created by the populator then return error
+if want and found return nil
+if !want and !found return nil
+if want and !found -> create return error/nil
+if !want and found -> delete return error/nil
+*/
+func (c *controller) ensurePVC(want bool, namespace string, pvc *corev1.PersistentVolumeClaim) error {
+	pvcClone := pvc.DeepCopy()
+	found := true
+	obj, err := c.kubeClient.CoreV1().PersistentVolumeClaims(namespace).
+		Get(context.TODO(), pvcClone.Name, metav1.GetOptions{})
+	if err != nil {
+		if errors.IsNotFound(err) {
+			found = false
+		} else {
+			return err
+		}
+	}
+	if found && (obj.GetLabels() == nil || obj.GetLabels()[createdByLabel] != componentName) {
+		return fmt.Errorf("resource found but not created by this operator")
+	}
+	if want && found {
+		return nil
+	}
+	if !want && !found {
+		return nil
+	}
+
+	if want && !found {
+		_, err := c.kubeClient.CoreV1().PersistentVolumeClaims(namespace).
+			Create(context.TODO(), pvcClone, metav1.CreateOptions{})
+		return err
+	}
+	if want && !found {
+		err := c.kubeClient.CoreV1().PersistentVolumeClaims(namespace).
+			Delete(context.TODO(), pvcClone.Name, metav1.DeleteOptions{})
+		return err
+	}
+	return nil
+}
+
+/*
+if found and not created by the populator then return error
+if want and found return nil
+if !want and !found return nil
+if want and !found -> create return error/nil
+if !want and found -> delete return error/nil
+*/
+func (c *controller) ensurePopulator(want bool, namespace string, populator *internalv1.PersistentVolumePopulator) error {
+	found := true
+	populatorClone := populator.DeepCopy()
+	populatorMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(&populatorClone)
+	if err != nil {
+		return err
+	}
+	populatorUnstruct := &unstructured.Unstructured{
+		Object: populatorMap,
+	}
+	obj, err := c.dynamicClient.Resource(pvpGVR).Namespace(namespace).
+		Get(context.TODO(), populatorClone.GetName(), metav1.GetOptions{})
+	if err != nil {
+		if errors.IsNotFound(err) {
+			found = false
+		} else {
+			return err
+		}
+	}
+	if found && (obj.GetLabels() == nil || obj.GetLabels()[createdByLabel] != componentName) {
+		return fmt.Errorf("resource found but not created by this operator")
+	}
+	if want && found {
+		return nil
+	}
+	if !want && !found {
+		return nil
+	}
+	if want && !found {
+		_, err := c.dynamicClient.Resource(pvpGVR).Namespace(namespace).
+			Create(context.TODO(), populatorUnstruct, metav1.CreateOptions{})
+		return err
+	}
+	if !want && found {
+		err := c.dynamicClient.Resource(pvpGVR).Namespace(namespace).
+			Delete(context.TODO(), populatorClone.GetName(), metav1.DeleteOptions{})
+		return err
+	}
+	return nil
+}
+
+// updateVolumeCopy updates a volume copy object
+func (c *controller) updateVolumeCopy(vr *internalv1.VolumeRename) error {
+	vrClone := vr.DeepCopy()
+	vrMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(vrClone)
+	if err != nil {
+		return err
+	}
+	vrUnstruct := &unstructured.Unstructured{
+		Object: vrMap,
+	}
+	_, err = c.dynamicClient.Resource(vrGVR).Namespace(vrClone.GetNamespace()).
+		Update(context.TODO(), vrUnstruct, metav1.UpdateOptions{})
+	return err
 }

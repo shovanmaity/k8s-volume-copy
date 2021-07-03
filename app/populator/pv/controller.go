@@ -14,7 +14,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	runtimeu "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -32,29 +31,21 @@ import (
 	internalv1 "github.com/shovanmaity/k8s-volume-copy/client/apis/demo.io/v1"
 )
 
-const (
-	populatedFromAnnoSuffix      = "populated-from"
-	annotationSelectedNode       = "volume.kubernetes.io/selected-node"
-	annotationStorageProvisioner = "volume.beta.kubernetes.io/storage-provisioner"
-)
-
 type controller struct {
-	populatorNamespace      string
-	populatedFromAnnotation string
-	pvcLister               listers.PersistentVolumeClaimLister
-	pvcSynced               cache.InformerSynced
-	pvLister                listers.PersistentVolumeLister
-	pvSynced                cache.InformerSynced
-	populatorLister         dynamiclister.Lister
-	populatorSynced         cache.InformerSynced
-	kubeClient              *kubernetes.Clientset
-	dynamicClient           dynamic.Interface
-	workqueue               workqueue.RateLimitingInterface
-	gk                      schema.GroupKind
+	namespace       string
+	pvcLister       listers.PersistentVolumeClaimLister
+	pvcSynced       cache.InformerSynced
+	pvLister        listers.PersistentVolumeLister
+	pvSynced        cache.InformerSynced
+	populatorLister dynamiclister.Lister
+	populatorSynced cache.InformerSynced
+	kubeClient      *kubernetes.Clientset
+	dynamicClient   dynamic.Interface
+	workqueue       workqueue.RateLimitingInterface
 }
 
-func runController(populatorNamespace, prefix string, gk schema.GroupKind, gvr schema.GroupVersionResource) {
-	klog.Infof("Starting populator controller for %s", gk)
+func runController(cfg *rest.Config, namespace string) {
+	klog.Infof("Starting populator controller for %s", pvpGK)
 	stopCh := make(chan struct{})
 	sigCh := make(chan os.Signal, 2)
 	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
@@ -64,10 +55,6 @@ func runController(populatorNamespace, prefix string, gk schema.GroupKind, gvr s
 		<-sigCh
 		os.Exit(1) // second signal. Exit directly.
 	}()
-	cfg, err := rest.InClusterConfig()
-	if err != nil {
-		klog.Fatalf("Failed to create config: %v", err)
-	}
 	kubeClient, err := kubernetes.NewForConfig(cfg)
 	if nil != err {
 		klog.Fatalf("Failed to create kube client: %v", err)
@@ -82,21 +69,19 @@ func runController(populatorNamespace, prefix string, gk schema.GroupKind, gvr s
 
 	pvcInformer := informerFactory.Core().V1().PersistentVolumeClaims()
 	pvInformer := informerFactory.Core().V1().PersistentVolumes()
-	populatorInformer := dynamicInformerFactory.ForResource(gvr).Informer()
+	populatorInformer := dynamicInformerFactory.ForResource(pvpGVR).Informer()
 
 	c := &controller{
-		populatorNamespace:      populatorNamespace,
-		populatedFromAnnotation: prefix + "/" + populatedFromAnnoSuffix,
-		pvcLister:               pvcInformer.Lister(),
-		pvcSynced:               pvInformer.Informer().HasSynced,
-		pvLister:                pvInformer.Lister(),
-		pvSynced:                pvInformer.Informer().HasSynced,
-		populatorLister:         dynamiclister.New(populatorInformer.GetIndexer(), gvr),
-		populatorSynced:         populatorInformer.HasSynced,
-		workqueue:               workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter()),
-		kubeClient:              kubeClient,
-		dynamicClient:           dynamicClient,
-		gk:                      gk,
+		namespace:       namespace,
+		pvcLister:       pvcInformer.Lister(),
+		pvcSynced:       pvInformer.Informer().HasSynced,
+		pvLister:        pvInformer.Lister(),
+		pvSynced:        pvInformer.Informer().HasSynced,
+		populatorLister: dynamiclister.New(populatorInformer.GetIndexer(), pvpGVR),
+		populatorSynced: populatorInformer.HasSynced,
+		workqueue:       workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter()),
+		kubeClient:      kubeClient,
+		dynamicClient:   dynamicClient,
 	}
 
 	pvcInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
@@ -180,7 +165,7 @@ func (c *controller) runWorker() {
 
 func (c *controller) syncPvc(ctx context.Context, key, namespace, name string) (done bool, err error) {
 	// Ignore PVCs present in working namespace
-	if c.populatorNamespace == namespace {
+	if c.namespace == namespace {
 		klog.V(2).Infof("Ignoring pvc `%s` present in populator namespace `%s`.", name, namespace)
 		return true, nil
 	}
@@ -203,7 +188,7 @@ func (c *controller) syncPvc(ctx context.Context, key, namespace, name string) (
 	}
 
 	// Ignore PVCs that aren't for this populator to handle
-	if c.gk.Group != *dataSource.APIGroup || c.gk.Kind != dataSource.Kind || dataSource.Name == "" {
+	if pvpGK.Group != *dataSource.APIGroup || pvpGK.Kind != dataSource.Kind || dataSource.Name == "" {
 		klog.V(2).Infof("Ignoring pvc `%s` present in namespace `%s`, datasource mismathc.", name, namespace)
 		return true, nil
 	}
@@ -249,6 +234,9 @@ func (c *controller) syncPvc(ctx context.Context, key, namespace, name string) (
 	}
 	if pvc.Annotations[annotationSelectedNode] == "" || pvc.Annotations[annotationStorageProvisioner] == "" {
 		pvcClone := pvc.DeepCopy()
+		if pvcClone.GetAnnotations() == nil {
+			pvcClone.Annotations = make(map[string]string)
+		}
 		pvcClone.ObjectMeta.Annotations[annotationSelectedNode] = nodeName
 		pvcClone.ObjectMeta.Annotations[annotationStorageProvisioner] = provisioner
 		if _, err := c.kubeClient.CoreV1().PersistentVolumeClaims(pvcClone.Namespace).
@@ -287,7 +275,7 @@ func (c *controller) syncPvc(ctx context.Context, key, namespace, name string) (
 					},
 				},
 			}
-			patchPv.Annotations[c.populatedFromAnnotation] = pvc.Namespace + "/" + dataSource.Name
+			patchPv.Annotations[annotationPopulatedFrom] = pvc.Namespace + "/" + dataSource.Name
 			data, err := json.Marshal(patchPv)
 			if nil != err {
 				return false, err

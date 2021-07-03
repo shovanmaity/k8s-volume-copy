@@ -36,15 +36,15 @@ spec:
           spec:
             description: Spec contains details of renaming a PVC .
             properties:
-              newName:
-                description: NewName is the updated name of the PVC
+              newPVC:
+                description: NewPVC is the updated name of the PVC
                 type: string
-              pvcName:
-                description: PVCName is name of the PVC that we want to rename
+              oldPVC:
+                description: OldPVC is name of the PVC that we want to rename
                 type: string
             required:
-            - newName
-            - pvcName
+            - newPVC
+            - oldPVC
             type: object
           status:
             description: VolumeRenameStatus contains status of the rename process.

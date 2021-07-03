@@ -45,8 +45,8 @@ Here are the steps to rename a pvc.
    metadata:
      name: volume-rename
    spec:
-     pvcName: my-pvc
-     newName: my-pvc-dash
+     oldPVC: my-pvc
+     newPVC: my-pvc-dash
    ```
 5. Wait for volume rename comes to `Completed` state.
    ```bash

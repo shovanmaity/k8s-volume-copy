@@ -16,8 +16,8 @@ type templateConfig struct {
 // templateConfig used to get populator and pvc object
 func templateFromVolumeRename(cr internalv1.VolumeRename) (*templateConfig, error) {
 	tc := &templateConfig{
-		pvcName: cr.Spec.PVCName,
-		newName: cr.Spec.NewName,
+		pvcName: cr.Spec.OldPVC,
+		newName: cr.Spec.NewPVC,
 	}
 	return tc, nil
 }
@@ -31,9 +31,9 @@ func (tc *templateConfig) getPersistentVolumePopulatorTemplate() internalv1.Pers
 			APIVersion: groupDemoIO + "/" + versionV1,
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: componentName + "-" + tc.pvcName,
+			Name: populatorName + "-" + tc.pvcName,
 			Labels: map[string]string{
-				nameLabel:      componentName + "-" + tc.pvcName,
+				nameLabel:      populatorName + "-" + tc.pvcName,
 				roleLabel:      componentName,
 				createdByLabel: componentName,
 				managedByLabel: componentName,
@@ -56,8 +56,8 @@ func (tc *templateConfig) getPersistentVolumePopulatorTemplate() internalv1.Pers
 func (tc *templateConfig) getPVCDashTemplate(pvc corev1.PersistentVolumeClaim) corev1.PersistentVolumeClaim {
 	// annotaions for pvc dash
 	annotations := make(map[string]string)
-	annotations[provisionerNameAnnotation] = pvc.Annotations[provisionerNameAnnotation]
-	annotations[nodeNameAnnotation] = pvc.Annotations[nodeNameAnnotation]
+	//annotations[provisionerNameAnnotation] = pvc.Annotations[provisionerNameAnnotation]
+	//annotations[nodeNameAnnotation] = pvc.Annotations[nodeNameAnnotation]
 
 	// labels for pvc dash
 	labels := pvc.Labels
@@ -83,7 +83,7 @@ func (tc *templateConfig) getPVCDashTemplate(pvc corev1.PersistentVolumeClaim) c
 			name := groupDemoIO
 			return &name
 		}(),
-		Name: componentName + "-" + tc.pvcName,
+		Name: populatorName + "-" + tc.pvcName,
 	}
 
 	// remove volume name

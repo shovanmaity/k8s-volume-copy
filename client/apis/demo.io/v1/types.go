@@ -6,9 +6,9 @@ import (
 )
 
 const (
-	VolumeRenameStatusInProgress = "InProgress"
-	VolumeRenameStatusCompleted  = "Completed"
-	VolumeRenameStatusFailed     = "Failed"
+	StatusInProgress = "InProgress"
+	StatusCompleted  = "Completed"
+	StatusFailed     = "Failed"
 )
 
 // +genclient
@@ -87,14 +87,14 @@ type VolumeCopy struct {
 
 // VolumeCopySpec contains information of source and new pvc.
 type VolumeCopySpec struct {
-	// PVCName is name of the PVC that we want to copy
-	PVCName string `json:"pvcName"`
-	// PVCNamespace is namespace of the PVC that we want to copy
-	PVCNamespace string `json:"pvcNamespace"`
-	// SCName is the storageclass of new PVC
-	SCName string `json:"scName"`
-	// NewName is new PVC name
-	NewName string `json:"newName"`
+	// SourcePVC is name of the PVC that we want to copy
+	SourcePVC string `json:"sourcePVC"`
+	// SourcePVCNamespace is namespace of the PVC that we want to copy
+	SourceNamespace string `json:"sourceNamespace"`
+	// DestinationSC is the storageclass of new PVC
+	DestinationSC string `json:"destinationSC"`
+	// DestinationPVC is new PVC name. it will be created in VolumeCopy namespace
+	DestinationPVC string `json:"destinationPVC"`
 }
 
 // VolumeCopyStatus contains status of volume copy
@@ -126,10 +126,10 @@ type VolumeRename struct {
 
 // VolumeRenameSpec contains PVC name and updated name
 type VolumeRenameSpec struct {
-	// PVCName is name of the PVC that we want to rename
-	PVCName string `json:"pvcName"`
-	// NewName is the updated name of the PVC
-	NewName string `json:"newName"`
+	// OldPVC is name of the PVC that we want to rename
+	OldPVC string `json:"oldPVC"`
+	// NewPVC is the updated name of the PVC
+	NewPVC string `json:"newPVC"`
 }
 
 // VolumeRenameStatus contains status of the rename process.
