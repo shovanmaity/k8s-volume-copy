@@ -1,77 +1,90 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: volume-rename
+  name: volume-copy
   namespace: volume-copy
   labels:
-    demo.io/name: volume-rename
+    demo.io/name: volume-copy
     demo.io/role: volume-populator 
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: volume-rename
+  name: volume-copy
   labels:
-    demo.io/name: volume-rename
+    demo.io/name: volume-copy
     demo.io/role: volume-populator 
 rules:
   - apiGroups: [""]
     resources: [persistentvolumeclaims]
     verbs: [get, create]
+  - apiGroups: [""]
+    resources: [pods]
+    verbs: [get, create, delete]
+  - apiGroups: [""]
+    resources: [configmaps]
+    verbs: [get, create, delete]
+  - apiGroups: [""]
+    resources: [services]
+    verbs: [get, create, delete]
+
+  - apiGroups: ["storage.k8s.io"]
+    resources: [storageclasses]
+    verbs: [get]
 
   - apiGroups: [demo.io]
-    resources: [persistentvolumepopulators]
+    resources: [rsyncpopulators]
     verbs: [get, delete, create]
   - apiGroups: [demo.io]
-    resources: [volumerenames]
+    resources: [volumecopies]
     verbs: [get, watch, list, update]
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: volume-rename
+  name: volume-copy
   labels:
-    demo.io/name: volume-rename
+    demo.io/name: volume-copy
     demo.io/role: volume-populator 
 subjects:
   - kind: ServiceAccount
-    name: volume-rename
+    name: volume-copy
     namespace: volume-copy
 roleRef:
   kind: ClusterRole
-  name: volume-rename
+  name: volume-copy
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: volume-rename
+  name: volume-copy
   namespace: volume-copy
   labels:
-    demo.io/app: volume-rename
-    demo.io/name: volume-rename
+    demo.io/app: volume-copy
+    demo.io/name: volume-copy
     demo.io/role: volume-populator 
 spec:
-  serviceName: volume-rename
+  serviceName: volume-copy
   replicas: 1
   selector:
     matchLabels:
-      demo.io/app: volume-rename
-      demo.io/name: volume-rename
+      demo.io/app: volume-copy
+      demo.io/name: volume-copy
       demo.io/role: volume-populator
   template:
     metadata:
       labels:
-        demo.io/app: volume-rename
-        demo.io/name: volume-rename
+        demo.io/app: volume-copy
+        demo.io/name: volume-copy
         demo.io/role: volume-populator
     spec:
-      serviceAccount: volume-rename
+      serviceAccount: volume-copy
       containers:
-      - name: volume-rename
-        image: quay.io/k8s-volume-copy/volume-rename:ci
+      - name: volume-copy
+        image: quay.io/k8s-volume-copy/volume-copy:ci
         imagePullPolicy: Always
         command:
-        - volume-rename
+        - volume-copy
         args:
         - --v=2

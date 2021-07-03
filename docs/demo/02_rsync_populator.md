@@ -7,6 +7,9 @@ NOTE -
 Here are the steps to create a volume using rsync source.
 1. Install volume populator
    ```bash
+   kubectl create ns volume-copy
+   ```
+   ```bash
    kubectl apply -f config/crd/demo.io_rsyncpopulators.yaml
    kubectl apply -f yaml/populator/rsync/deploy.yaml
    ```
@@ -104,4 +107,7 @@ Here are the steps to create a volume using rsync source.
    ```bash
    kubectl delete -f config/crd/demo.io_rsyncpopulators.yaml
    kubectl delete -f yaml/populator/rsync/deploy.yaml
+   ```
+   ```bash
+   kubectl delete ns volume-copy
    ```

@@ -56,8 +56,6 @@ func (tc *templateConfig) getPersistentVolumePopulatorTemplate() internalv1.Pers
 func (tc *templateConfig) getPVCDashTemplate(pvc corev1.PersistentVolumeClaim) corev1.PersistentVolumeClaim {
 	// annotaions for pvc dash
 	annotations := make(map[string]string)
-	//annotations[provisionerNameAnnotation] = pvc.Annotations[provisionerNameAnnotation]
-	//annotations[nodeNameAnnotation] = pvc.Annotations[nodeNameAnnotation]
 
 	// labels for pvc dash
 	labels := pvc.Labels

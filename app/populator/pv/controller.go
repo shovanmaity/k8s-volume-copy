@@ -34,9 +34,7 @@ import (
 type controller struct {
 	namespace       string
 	pvcLister       listers.PersistentVolumeClaimLister
-	pvcSynced       cache.InformerSynced
 	pvLister        listers.PersistentVolumeLister
-	pvSynced        cache.InformerSynced
 	populatorLister dynamiclister.Lister
 	populatorSynced cache.InformerSynced
 	kubeClient      *kubernetes.Clientset
@@ -74,9 +72,7 @@ func runController(cfg *rest.Config, namespace string) {
 	c := &controller{
 		namespace:       namespace,
 		pvcLister:       pvcInformer.Lister(),
-		pvcSynced:       pvInformer.Informer().HasSynced,
 		pvLister:        pvInformer.Lister(),
-		pvSynced:        pvInformer.Informer().HasSynced,
 		populatorLister: dynamiclister.New(populatorInformer.GetIndexer(), pvpGVR),
 		populatorSynced: populatorInformer.HasSynced,
 		workqueue:       workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter()),
@@ -117,7 +113,7 @@ func (c *controller) run(stopCh <-chan struct{}) error {
 	defer runtimeu.HandleCrash()
 	defer c.workqueue.ShutDown()
 
-	ok := cache.WaitForCacheSync(stopCh, c.pvcSynced, c.pvSynced, c.populatorSynced)
+	ok := cache.WaitForCacheSync(stopCh, c.populatorSynced)
 	if !ok {
 		return fmt.Errorf("failed to wait for caches to sync")
 	}

@@ -36,10 +36,13 @@ func main() {
 	if err != nil {
 		cfg, err = rest.InClusterConfig()
 		if err != nil {
-			panic(err)
+			klog.Fatalf("error getting k8s config error: %s", err)
 		}
 	}
 
 	namespace := os.Getenv("POD_NAMESPACE")
+	if namespace == "" {
+		klog.Fatal("env POD_NAMESPACE not found")
+	}
 	runController(cfg, namespace)
 }

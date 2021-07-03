@@ -9,6 +9,9 @@ NOTE -
 Here are the steps to rename a pvc using PV Populator.
 1. Install volume populator.
    ```bash
+   kubectl create ns volume-copy
+   ```
+   ```bash
    kubectl apply -f config/crd/demo.io_persistentvolumepopulators.yaml
    kubectl apply -f yaml/populator/pv/deploy.yaml
    ```
@@ -94,4 +97,7 @@ Here are the steps to rename a pvc using PV Populator.
    ```bash
    kubectl delete -f config/crd/demo.io_persistentvolumepopulators.yaml
    kubectl delete -f yaml/populator/pv/deploy.yaml
+   ```
+   ```bash
+   kubectl delete ns volume-copy
    ```

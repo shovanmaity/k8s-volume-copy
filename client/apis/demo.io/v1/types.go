@@ -6,9 +6,10 @@ import (
 )
 
 const (
-	StatusInProgress = "InProgress"
-	StatusCompleted  = "Completed"
-	StatusFailed     = "Failed"
+	StatusWaitingForConsumer = "WaitingForConsumer"
+	StatusInProgress         = "InProgress"
+	StatusCompleted          = "Completed"
+	StatusFailed             = "Failed"
 )
 
 // +genclient

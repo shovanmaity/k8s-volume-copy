@@ -9,6 +9,9 @@ NOTE -
 Here are the steps to rename a pvc.
 1. Install volume populator and volume rename controller.
    ```bash
+   kubectl create ns volume-copy
+   ```
+   ```bash
    kubectl apply -f config/crd/demo.io_persistentvolumepopulators.yaml
    kubectl apply -f config/crd/demo.io_volumerenames.yaml
    kubectl apply -f yaml/populator/pv/deploy.yaml
@@ -35,7 +38,7 @@ Here are the steps to rename a pvc.
    ```bash
    kubectl delete -f yaml/volume-rename/app/pod.yaml
    ```
-4. Create a pvpopulator cr. It has old pvc name in the spec.
+4. Create a volume rename cr. It has old and new pvc details.
    ```bash
    kubectl apply -f yaml/volume-rename/cr.yaml
    ```
@@ -79,4 +82,8 @@ Here are the steps to rename a pvc.
    kubectl delete -f yaml/volume-rename/deploy.yaml
    kubectl delete -f config/crd/demo.io_persistentvolumepopulators.yaml
    kubectl delete -f config/crd/demo.io_volumerenames.yaml
+   ```
+   ```bash
+   kubectl delete pvc my-pvc-dash
+   kubectl delete ns volume-copy
    ```

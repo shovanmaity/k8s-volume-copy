@@ -141,7 +141,7 @@ func (c *controller) syncPopulator(ctx context.Context, key, namespace, name str
 	unstruct, err := c.vrLister.Namespace(namespace).Get(name)
 	if err != nil {
 		if errors.IsNotFound(err) {
-			utilruntime.HandleError(fmt.Errorf("populator '%s' in work queue no longer exists", key))
+			utilruntime.HandleError(fmt.Errorf("volume rename '%s' in work queue no longer exists", key))
 			return nil
 		}
 		return fmt.Errorf("error getting volume rename error: %s", err)
@@ -166,7 +166,7 @@ func (c *controller) syncPopulator(ctx context.Context, key, namespace, name str
 	if volumeRename.Status.State == "" {
 		clone := volumeRename.DeepCopy()
 		clone.Status.State = internalv1.StatusInProgress
-		if err := c.updateVolumeCopy(clone); err != nil {
+		if err := c.updateVolumeRename(clone); err != nil {
 			return err
 		}
 		return nil
@@ -205,7 +205,7 @@ func (c *controller) syncPopulator(ctx context.Context, key, namespace, name str
 				clone.Status.State = internalv1.StatusFailed
 				clone.Status.Message = "New PVC is not created by volume rename controller."
 			}
-			if err := c.updateVolumeCopy(clone); err != nil {
+			if err := c.updateVolumeRename(clone); err != nil {
 				return err
 			}
 			return nil
@@ -309,8 +309,8 @@ func (c *controller) ensurePopulator(want bool, namespace string, populator *int
 	return nil
 }
 
-// updateVolumeCopy updates a volume copy object
-func (c *controller) updateVolumeCopy(vr *internalv1.VolumeRename) error {
+// updateVolumeCopy updates a volume rename object
+func (c *controller) updateVolumeRename(vr *internalv1.VolumeRename) error {
 	vrClone := vr.DeepCopy()
 	vrMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(vrClone)
 	if err != nil {

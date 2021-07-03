@@ -1,0 +1,9 @@
+apiVersion: demo.io/v1
+kind: VolumeCopy
+metadata:
+  name: volume-copy
+spec:
+  sourceNamespace: default
+  sourcePVC: my-pvc
+  destinationPVC: my-pvc-dash
+  destinationSC: my-sc
