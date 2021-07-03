@@ -4,7 +4,7 @@ NOTE -
 1. `AnyVolumeDataSource` feature gate should be enabled in the kubernetes cluster.
 2. Default storageclass should be configured for this demo.
 3. Namespace `volume-copy` is reserved for volume populator. Don't create any application or pvc in that namespace.
-4. Before rename volume should not be used by any application.
+4. Before copying volume should not be used by any application.
 
 Here are the steps to copy a pvc.
 1. Install volume populator and volume copy controller.

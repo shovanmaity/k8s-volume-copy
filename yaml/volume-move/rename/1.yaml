@@ -1,0 +1,7 @@
+apiVersion: demo.io/v1
+kind: VolumeRename
+metadata:
+  name: volume-rename-1
+spec:
+  oldPVC: data-minio-0
+  newPVC: old-data-minio-0

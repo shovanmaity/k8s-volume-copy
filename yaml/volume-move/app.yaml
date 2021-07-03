@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: minio
+  labels:
+    demo.io/name: minio 
+    demo.io/app: minio
+spec:
+  selector:
+    matchLabels:
+      demo.io/name: minio
+      demo.io/app: minio
+  serviceName: minio
+  replicas: 4
+  selector:
+    matchLabels:
+      demo.io/name: minio
+      demo.io/app: minio
+  template:
+    metadata:
+      labels:
+        demo.io/name: minio
+        demo.io/app: minio
+    spec:
+      containers:
+      - name: minio
+        env:
+        - name: MINIO_ACCESS_KEY
+          value: "minio"
+        - name: MINIO_SECRET_KEY
+          value: "minio123"
+        image: minio/minio:latest
+        args:
+        - server
+        - http://minio-0.minio.default.svc.cluster.local/data
+        - http://minio-1.minio.default.svc.cluster.local/data
+        - http://minio-2.minio.default.svc.cluster.local/data
+        - http://minio-3.minio.default.svc.cluster.local/data
+        ports:
+        - containerPort: 9000
+        volumeMounts:
+        - name: data
+          mountPath: /data
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      storageClassName: hp-node-1
+      resources:
+        requests:
+          storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+  labels:
+    demo.io/name: minio
+spec:
+  type: NodePort
+  ports:
+  - port: 9000
+    name: minio
+  selector:
+    demo.io/name: minio
+    demo.io/app: minio

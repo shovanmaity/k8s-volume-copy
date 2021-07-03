@@ -1,0 +1,9 @@
+apiVersion: demo.io/v1
+kind: VolumeCopy
+metadata:
+  name: volume-copy-3
+spec:
+  sourceNamespace: default
+  sourcePVC: old-data-minio-2
+  destinationPVC: data-minio-2
+  destinationSC: hp-node-2
