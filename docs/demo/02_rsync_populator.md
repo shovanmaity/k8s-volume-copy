@@ -1,10 +1,11 @@
-Rsync Populator is a `Volume Populator` that helps to create volume using rsync source. In this project we are creating rsync daemon on source volume and then populator will use that source to create a volume.
+Rsync Populator is a volume populator that helps to create volume from any rsync source. Rsync client is used as volume populator plugin. `RsyncPopulator` CR contains the information of source location and how to access the source.
 
 NOTE -
 1. `AnyVolumeDataSource` feature gate should be enabled in the kubernetes cluster.
 2. Namespace `volume-copy` is reserved for volume populator. Don't create any application or pvc in that namespace.
+3. Before rename volume should not be used by any application.
 
-Here are the steps to create a volume using rsync source.
+Here are the steps of how to use rsync populator -
 1. Install volume populator
    ```bash
    kubectl create ns volume-copy
@@ -34,11 +35,11 @@ Here are the steps to create a volume using rsync source.
    ```bash
    kubectl delete -f yaml/populator/rsync/app/pod.yaml
    ```
-4. Install rsync daemon as a source, it will mount source volume.
+4. Setup rsync source, install rsync daemon pod, configmap and service it will mount source volume.
    ```bash
    kubectl apply -f yaml/server/rsync/deploy.yaml
    ```
-5. Create a rsyncpopulator cr. It has all the details of source rsyncd.
+5. Create a rsyncpopulator cr. It has all the details of rsync source.
    ```bash
    kubectl apply -f yaml/populator/rsync/cr.yaml
    ```
@@ -53,7 +54,7 @@ Here are the steps to create a volume using rsync source.
      url: rsync-daemon.default:873
      path: /data
    ```
-6. Create a new pvc pointing to the rsync-populator.
+6. Create a new pvc pointing to rsync-populator.
    ```bash
    # Please edit the storageclass accordingly
    kubectl apply -f yaml/populator/rsync/app/pvc-d.yaml
@@ -76,7 +77,7 @@ Here are the steps to create a volume using rsync source.
        requests:
          storage: 2Gi
    ```
-7. Create a new pod and check the older data is present or not.
+7. Create a new pod and check the older data is present or not in the new PVC.
    ```bash
    kubectl apply -f yaml/populator/rsync/app/pod-d.yaml
    ```

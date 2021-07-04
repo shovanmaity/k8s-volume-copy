@@ -1,12 +1,11 @@
-In this demo we will move PVC from one storageclass to another storageclass. In these yaml storage class `hp-node-1` and `hp-node-2` are hard coded, if you want you can change it. In this demo we will use `VolumeRename` and `VolumeCopy`. Flow is `scale down` -> `rename volume(s)` -> `copy volume(s)` -> `scale up`.
+In this demo we will move PVC from one storageclass to another storageclass. In these yaml storage class `hp-node-1` and `hp-node-2` are hard coded, if you want you can change it. In this demo we will use `VolumeRename` and `VolumeCopy`.
 
 NOTE -
 1. `AnyVolumeDataSource` feature gate should be enabled in the kubernetes cluster.
-2. Storageclass should be configured for this demo.
-3. Namespace `volume-copy` is reserved for volume populator. Don't create any application or pvc in that namespace.
-4. Before moving volume should not be used by any application.
+2. Namespace `volume-copy` is reserved for volume populator. Don't create any application or pvc in that namespace.
+3. Before moving volume should not be used by any application.
 
-Here are steps -
+Here are steps to move a volume from one storageclass to another storageclass -
 1. Install PV and Rsync volume populator and volume rename and copy controller.
    ```bash
    kubectl create ns volume-copy
@@ -25,7 +24,7 @@ Here are steps -
    ```bash
    kubectl apply -f yaml/volume-move/app.yaml
    ```
-3. After adding some file in minio scale it down.
+3. After adding some data in minio scale it down.
    ```bash
    kubectl scale sts minio --replicas=0
    ```

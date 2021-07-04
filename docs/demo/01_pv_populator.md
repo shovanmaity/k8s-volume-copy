@@ -1,12 +1,11 @@
-PV Populator is a `Volume Populator` that helps to rename a PVC. It does a patch on `PersistentVolume` of older `Claim` with new `Claim`.
+PV Populator is a volume populator that does a patch on PV of older PVC with new PVC. Here source of the volume is the PV of any older PVC. Both the PVC(new and source) should be from same storageclass. It is like mentioning PVC as a data source for a PVC. There one clone volume will be created and here PV of the mentioned PVC will be patched with new PVC. In this way we will be able to rename a PVC and it will refer to the PV of older PVC.
 
 NOTE -
 1. `AnyVolumeDataSource` feature gate should be enabled in the kubernetes cluster.
-2. Default storageclass should be configured for this demo.
-3. Namespace `volume-copy` is reserved for volume populator. Don't create any application or pvc in that namespace.
-4. Before rename volume should not be used by any application.
+2. Namespace `volume-copy` is reserved for volume populator. Don't create any application or pvc in that namespace.
+3. Before rename volume should not be used by any application.
 
-Here are the steps to rename a pvc using PV Populator.
+Here are the steps of how to use persistent volume populator -
 1. Install volume populator.
    ```bash
    kubectl create ns volume-copy
@@ -32,7 +31,7 @@ Here are the steps to rename a pvc using PV Populator.
    /data # cat file
    hello!
    ```
-3. After writing some data delete the pod.
+3. After writing some data delete the Pod.
    ```bash
    kubectl delete -f yaml/populator/pv/app/pod.yaml
    ```
@@ -48,7 +47,7 @@ Here are the steps to rename a pvc using PV Populator.
    spec:
      pvcName: my-pvc
    ```
-5. Create a new pvc pointing to the claim-cpopulator.
+5. Create a new pvc pointing to pv-cpopulator.
    ```bash
    # Please edit the storageclass accordingly
    kubectl apply -f yaml/populator/pv/app/pvc-d.yaml
@@ -71,7 +70,7 @@ Here are the steps to rename a pvc using PV Populator.
        requests:
          storage: 2Gi
    ```
-6. Create a new pod and check the older data is present or not.
+6. Create a new Pod and check the older data is present or not in the new PVC.
    ```bash
    kubectl apply -f yaml/populator/pv/app/pod-d.yaml
    ```

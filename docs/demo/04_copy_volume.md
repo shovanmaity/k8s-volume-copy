@@ -1,12 +1,11 @@
-[Rsync Populator](https://github.com/shovanmaity/k8s-volume-copy/blob/main/docs/demo/02_rsync_populator.md) is a `Volume Populator` that helps to create a volume from any rsync source. This module use it to copy any filesystem PVC. It creates rsync server on source PVC and rsync client is used as populator to create a new volume copy.
+Rsync Populator is a volume populator that helps to create a volume from any rsync source. Volume Copy control loop, it makes use of Rsync Populator to rename a volume. When a `VolumeCopy` CR is created it sets up rsync source on the source PVC and creates a RsyncPopulator and a new PVC pointing to that volume populator as a data source. 
 
 NOTE -
 1. `AnyVolumeDataSource` feature gate should be enabled in the kubernetes cluster.
-2. Default storageclass should be configured for this demo.
-3. Namespace `volume-copy` is reserved for volume populator. Don't create any application or pvc in that namespace.
-4. Before copying volume should not be used by any application.
+2. Namespace `volume-copy` is reserved for volume populator. Don't create any application or pvc in that namespace.
+3. Before copying volume should not be used by any application.
 
-Here are the steps to copy a pvc.
+Here are the steps to copy a pvc -
 1. Install volume populator and volume copy controller.
    ```bash
    kubectl create ns volume-copy
@@ -38,7 +37,7 @@ Here are the steps to copy a pvc.
    ```bash
    kubectl delete -f yaml/volume-copy/app/pod.yaml
    ```
-4. Create a  VolumeCopy cr. It has old and new pvc details in the spec.
+4. Create a  `VolumeCopy` cr. It has old and new pvc details in the spec.
    ```bash
    kubectl apply -f yaml/volume-copy/cr.yaml
    ```
@@ -57,7 +56,7 @@ Here are the steps to copy a pvc.
    ```bash
    kubectl get volumecopy.demo.io/volume-copy -o=jsonpath="{.status.state}{'\n'}"
    ```
-6. Create a new pod and check the older data is present or not.
+6. Create a new pod and check the older data is present or not in the new PVC.
    ```bash
    kubectl apply -f yaml/volume-rename/app/pod-d.yaml
    ```
