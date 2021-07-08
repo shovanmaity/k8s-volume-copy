@@ -75,13 +75,13 @@ spec:
       serviceAccount: rsync-populator
       containers:
       - name: rsync-populator
-        image: quay.io/k8s-volume-copy/rsync-populator:ci
+        image: ghcr.io/k8s-volume-copy/rsync-populator
         imagePullPolicy: Always
         command:
         - rsync-populator
         args:
         - --v=2
-        - --image-name=quay.io/k8s-volume-copy/rsync-client:ci
+        - --image-name=ghcr.io/k8s-volume-copy/rsync-client
         env:
         - name: POD_NAMESPACE
           valueFrom:

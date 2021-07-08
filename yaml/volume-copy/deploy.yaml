@@ -82,7 +82,7 @@ spec:
       serviceAccount: volume-copy
       containers:
       - name: volume-copy
-        image: quay.io/k8s-volume-copy/volume-copy:ci
+        image: ghcr.io/k8s-volume-copy/volume-copy
         imagePullPolicy: Always
         command:
         - volume-copy

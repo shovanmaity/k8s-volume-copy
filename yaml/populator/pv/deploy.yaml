@@ -69,7 +69,7 @@ spec:
       serviceAccount: pv-populator
       containers:
       - name: pv-populator
-        image: quay.io/k8s-volume-copy/pv-populator:ci
+        image: ghcr.io/k8s-volume-copy/pv-populator
         imagePullPolicy: Always
         command:
         - pv-populator

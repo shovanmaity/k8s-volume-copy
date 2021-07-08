@@ -1,4 +1,5 @@
 FROM alpine:3.12
+LABEL org.opencontainers.image.source https://github.com/shovanmaity/k8s-volume-copy
 RUN apk add --no-cache bash
 RUN apk add --no-cache vim=8.2.0735-r0
 RUN apk add --no-cache openssh-server==8.3_p1-r2
