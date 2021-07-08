@@ -8,7 +8,7 @@ metadata:
 spec:
   containers:
   - name: rsync-client
-    image: ghcr.io/k8s-volume-copy/rsync-client
+    image: ghcr.io/shovanmaity/rsync-client:latest
     command:
     - rsync
     args:

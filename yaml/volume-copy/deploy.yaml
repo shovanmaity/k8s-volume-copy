@@ -82,7 +82,7 @@ spec:
       serviceAccount: volume-copy
       containers:
       - name: volume-copy
-        image: ghcr.io/k8s-volume-copy/volume-copy
+        image: ghcr.io/shovanmaity/volume-copy:latest
         imagePullPolicy: Always
         command:
         - volume-copy

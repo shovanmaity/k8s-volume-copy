@@ -69,7 +69,7 @@ spec:
       serviceAccount: pv-populator
       containers:
       - name: pv-populator
-        image: ghcr.io/k8s-volume-copy/pv-populator
+        image: ghcr.io/shovanmaity/pv-populator:latest
         imagePullPolicy: Always
         command:
         - pv-populator

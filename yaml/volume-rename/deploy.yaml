@@ -69,7 +69,7 @@ spec:
       serviceAccount: volume-rename
       containers:
       - name: volume-rename
-        image: ghcr.io/k8s-volume-copy/volume-rename
+        image: ghcr.io/shovanmaity/volume-rename:latest
         imagePullPolicy: Always
         command:
         - volume-rename

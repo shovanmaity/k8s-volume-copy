@@ -38,7 +38,7 @@ const (
 )
 
 const (
-	rsyncClinetImage = "quay.io/k8s-volume-copy/rsync-client:ci"
-	rsyncServerImage = "quay.io/k8s-volume-copy/rsync-daemon:ci"
+	rsyncClinetImage = "ghcr.io/shovanmaity/rsync-client:latest"
+	rsyncServerImage = "ghcr.io/shovanmaity/rsync-daemon:latest"
 	rsyncClientPass  = "pass"
 )
